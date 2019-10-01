@@ -3,11 +3,16 @@ package com.team3.main.util;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
-public class InputHandler implements KeyListener {
+public class InputHandler implements KeyListener, MouseListener, MouseWheelListener {
 	
 	private boolean[] keys = new boolean[65536];
-	public boolean up, down, left, right, use, back;
+	public boolean[] mouse = new boolean[508];
+	public boolean up, down, left, right, space, escape, mouseLeft, mouseRight, mouseScrollUp, mouseScrollDown;
 	public boolean focus = false;
 
 	public void update() {
@@ -15,8 +20,10 @@ public class InputHandler implements KeyListener {
 		down = keys[KeyEvent.VK_DOWN] || keys[KeyEvent.VK_S];
 		left = keys[KeyEvent.VK_LEFT] || keys[KeyEvent.VK_A];
 		right = keys[KeyEvent.VK_RIGHT] || keys[KeyEvent.VK_D];
-		use = keys[KeyEvent.VK_SPACE] || keys[KeyEvent.VK_ENTER];
-		back = keys[KeyEvent.VK_ESCAPE];
+		space = keys[KeyEvent.VK_SPACE];
+		escape = keys[KeyEvent.VK_ESCAPE];
+		mouseLeft = mouse[MouseEvent.BUTTON1];
+		mouseRight = mouse[MouseEvent.BUTTON3];
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -31,7 +38,7 @@ public class InputHandler implements KeyListener {
 	}
 
 	public void releaseAll() {
-		up = down = left = right = use = back = false;
+		up = down = left = right = space = escape = false;
 	}
 
 	public void focusGained(FocusEvent e) {
@@ -43,6 +50,33 @@ public class InputHandler implements KeyListener {
 		for (int i = 0; i < keys.length; i++) {
 			keys[i] = false;
 		}
+	}
+
+	public void mousePressed(MouseEvent e) {
+		mouse[e.getButton()] = true;
+	}
+	
+	public void mouseReleased(MouseEvent e) {
+		mouse[e.getButton()] = false;
+	}
+
+	public void mouseClicked(MouseEvent e) {
+		
+	}
+
+	public void mouseEntered(MouseEvent e) {
+		
+	}
+
+	public void mouseExited(MouseEvent e) {
+		
+	}
+
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		if(e.getWheelRotation() > 0)
+			mouseScrollDown = true;
+		else if(e.getWheelRotation() < 0)
+			mouseScrollUp = true;
 	}
 	
 }

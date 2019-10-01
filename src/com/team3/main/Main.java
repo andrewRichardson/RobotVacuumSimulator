@@ -8,6 +8,8 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.util.Random;
@@ -18,9 +20,13 @@ import com.team3.main.logic.CollisionModel;
 import com.team3.main.logic.Obstacle;
 import com.team3.main.logic.Vacuum;
 import com.team3.main.math.Vector2f;
+import com.team3.main.ui.UIComponent;
+import com.team3.main.ui.UIController;
+import com.team3.main.ui.UILabel;
+import com.team3.main.ui.UIMenu;
 import com.team3.main.util.InputHandler;
 
-public class Main extends Canvas implements Runnable {
+public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 	// INIT VARS
 	private static final long serialVersionUID = 1L;
@@ -34,7 +40,8 @@ public class Main extends Canvas implements Runnable {
 	private static boolean running = false;
 	private boolean showFPS = true;
 	private static Thread thread;
-	public static final double GRAVITY = 1.0;
+	private int mouse_x = 0, mouse_y = 0;
+	
 	// END INIT VARS
 	
 	// UTIL VARS
@@ -47,7 +54,10 @@ public class Main extends Canvas implements Runnable {
 	private Font font;
 	private Vacuum vacuum;
 	private CollisionModel collision_model;
-
+	private UIController ui_controller;
+	private UIMenu menu;
+	private UIMenu[] menus;
+	
 	public Main() {
 		// INIT VARS
 		Dimension d = new Dimension(WIDTH, HEIGHT);
@@ -58,17 +68,23 @@ public class Main extends Canvas implements Runnable {
 		// UTIL VARS
 		input = new InputHandler();
 		this.addKeyListener(input);
+		this.addMouseListener(input);
+		this.addMouseWheelListener(input);
+		addMouseMotionListener(this);
 		// END UTIL VARS
 
 		// GRAPHICS VARS
 		font = new Font("Arial", Font.BOLD, 12);
 		// END GRAPHICS VARS
 
+		// Vacuum Trail
 		vacuum_trail = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		
+		// Collision handling for vacuum and obstacles
 		collision_model = new CollisionModel(WIDTH, HEIGHT);
 		Random random = new Random();
 		
+		// Generate random obstacles
 		for (int r = 0; r < HEIGHT; r += 100) {
 			for (int c = 0; c < WIDTH; c += 100) {
 				if (random.nextBoolean()) {
@@ -80,7 +96,18 @@ public class Main extends Canvas implements Runnable {
 			}
 		}
 		
+		// Create Vacuum
 		vacuum = new Vacuum(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI+0.4, 2.0, "random", collision_model);
+		
+		// UI
+		UIComponent[] menu_components = {
+				new UILabel(0, 0, 1, 1, false, Color.GRAY, Color.WHITE, 0.75f, "Menu"),
+				new UILabel(1, 0, 1, 1, false, Color.GRAY, Color.WHITE, 0.75f, "Button")
+		};
+		
+		menu = new UIMenu(25, 25, UIMenu.HORZ_LAYOUT, menu_components, new int[]{10, 10, 100, 50}, true, true, Color.BLACK, false);
+		ui_controller = new UIController(WIDTH, HEIGHT, input);
+		ui_controller.addMenu(menu);
 	}
 
 	public static void main(String[] args) {
@@ -132,7 +159,7 @@ public class Main extends Canvas implements Runnable {
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups");
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Mouse: " + mouse_x + ", " + mouse_y);
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
@@ -154,6 +181,11 @@ public class Main extends Canvas implements Runnable {
 	public void update() {
 		input.update();
 		vacuum.update();
+		
+		if (menu.uiComponents[1].clicked) {
+			menu.uiComponents[1].clicked = false;
+			System.out.println("Run!");
+		}
 	}
 
 	public void render() {
@@ -198,6 +230,9 @@ public class Main extends Canvas implements Runnable {
 		g.setColor(Color.black);
 		g.fillOval(vacuum.getPosition().x, vacuum.getPosition().y, vacuum.diameter, vacuum.diameter);
 		
+		ui_controller.render(g);
+		ui_controller.eventHandler(mouse_x, mouse_y);
+		
 		// CLOSING CODE
 		g.dispose();
 		bs.show();
@@ -216,5 +251,23 @@ public class Main extends Canvas implements Runnable {
 				g.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
 			}
 		}
+	}
+	
+	public int getMouseX(){
+		return mouse_x;
+	}
+
+	public int getMouseY(){
+		return mouse_y;
+	}
+	
+	public void mouseDragged(MouseEvent e){
+		mouse_x = e.getX();
+		mouse_y = e.getY();
+	}
+
+	public void mouseMoved(MouseEvent e) {
+		mouse_x = e.getX();
+		mouse_y = e.getY();
 	}
 }
