@@ -52,6 +52,9 @@ public class Vacuum {
 		case "spiral":
 			spiral();
 			break;
+		case "wall_follow":
+			wallFollow();
+			break;
 		default:
 			System.out.println("Error, bad movement method specified.");
 			random();
@@ -82,6 +85,10 @@ public class Vacuum {
 	}
 	
 	private void spiral() {
+		
+	}
+	
+	private void wallFollow() {
 		
 	}
 	
