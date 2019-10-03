@@ -20,10 +20,6 @@ import com.team3.main.logic.CollisionModel;
 import com.team3.main.logic.Obstacle;
 import com.team3.main.logic.Vacuum;
 import com.team3.main.math.Vector2f;
-import com.team3.main.ui.UIComponent;
-import com.team3.main.ui.UIController;
-import com.team3.main.ui.UILabel;
-import com.team3.main.ui.UIMenu;
 import com.team3.main.util.InputHandler;
 
 public class Main extends Canvas implements Runnable, MouseMotionListener {
@@ -54,9 +50,6 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private Font font;
 	private Vacuum vacuum;
 	private CollisionModel collision_model;
-	private UIController ui_controller;
-	private UIMenu menu;
-	private UIMenu[] menus;
 	
 	public Main() {
 		// INIT VARS
@@ -98,16 +91,6 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		
 		// Create Vacuum
 		vacuum = new Vacuum(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI+0.4, 2.0, "random", collision_model);
-		
-		// UI
-		UIComponent[] menu_components = {
-				new UILabel(0, 0, 1, 1, false, Color.GRAY, Color.WHITE, 0.75f, "Menu"),
-				new UILabel(1, 0, 1, 1, false, Color.GRAY, Color.WHITE, 0.75f, "Button")
-		};
-		
-		menu = new UIMenu(25, 25, UIMenu.HORZ_LAYOUT, menu_components, new int[]{10, 10, 100, 50}, true, true, Color.BLACK, false);
-		ui_controller = new UIController(WIDTH, HEIGHT, input);
-		ui_controller.addMenu(menu);
 	}
 
 	public static void main(String[] args) {
@@ -181,11 +164,6 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	public void update() {
 		input.update();
 		vacuum.update();
-		
-		if (menu.uiComponents[1].clicked) {
-			menu.uiComponents[1].clicked = false;
-			System.out.println("Run!");
-		}
 	}
 
 	public void render() {
@@ -229,9 +207,6 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		
 		g.setColor(Color.black);
 		g.fillOval(vacuum.getPosition().x, vacuum.getPosition().y, vacuum.diameter, vacuum.diameter);
-		
-		ui_controller.render(g);
-		ui_controller.eventHandler(mouse_x, mouse_y);
 		
 		// CLOSING CODE
 		g.dispose();
