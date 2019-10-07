@@ -6,20 +6,24 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import com.team3.main.logic.CollisionModel;
 import com.team3.main.logic.Obstacle;
 import com.team3.main.logic.Vacuum;
 import com.team3.main.math.Vector2f;
+import com.team3.main.ui.Button;
+import com.team3.main.ui.GUIHandler;
 import com.team3.main.util.InputHandler;
 
 public class Main extends Canvas implements Runnable, MouseMotionListener {
@@ -30,8 +34,6 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private final String title = "Robot Vacuum";
 	private final int WIDTH = 960;
 	private final int HEIGHT = 540;
-	public final static int SCL_WIDTH = 480;
-	public final static int SCL_HEIGHT = 270;
 	private int fps, ups;
 	private static boolean running = false;
 	private boolean showFPS = true;
@@ -46,10 +48,12 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 	// GRAPHICS VARS
 	private BufferStrategy bs;
-	private BufferedImage vacuum_trail;
+	private BufferedImage planks, chest, table, dirt, table_legs;
 	private Font font;
 	private Vacuum vacuum;
 	private CollisionModel collision_model;
+	private GUIHandler gui_handler;
+	private boolean run_simulation = false;
 	
 	public Main() {
 		// INIT VARS
@@ -69,9 +73,17 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		// GRAPHICS VARS
 		font = new Font("Arial", Font.BOLD, 12);
 		// END GRAPHICS VARS
-
-		// Vacuum Trail
-		vacuum_trail = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		
+		// Images
+		try {
+			planks = ImageIO.read(new File("res/wood_planks.png"));
+			chest = ImageIO.read(new File("res/chest.png"));
+			table = ImageIO.read(new File("res/table.png"));
+			table_legs = ImageIO.read(new File("res/table_legs.png"));
+			dirt = ImageIO.read(new File("res/dirt.png"));
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 		
 		// Collision handling for vacuum and obstacles
 		collision_model = new CollisionModel(WIDTH, HEIGHT);
@@ -81,8 +93,8 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		for (int r = 0; r < HEIGHT; r += 100) {
 			for (int c = 0; c < WIDTH; c += 100) {
 				if (random.nextBoolean()) {
-					int width = random.nextInt(Obstacle.MINIMUM_GAP_SIZE) + Obstacle.MINIMUM_GAP_SIZE;
-					int height = random.nextInt(Obstacle.MINIMUM_GAP_SIZE) + Obstacle.MINIMUM_GAP_SIZE;
+					int width = 38;
+					int height = 38;
 					
 					collision_model.obstacles.add(new Obstacle(c, r, width, height, random.nextBoolean()));
 				}
@@ -90,7 +102,16 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		}
 		
 		// Create Vacuum
-		vacuum = new Vacuum(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI+0.4, 2.0, "random", collision_model);
+		vacuum = new Vacuum(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI+0.4, 0.1, "random", collision_model);
+		
+		Color background_color = new Color(31, 133, 222);
+		Color pressed_color = new Color(30, 80, 130);
+		Color outline_color = new Color(38, 96, 145);
+		Color font_color = new Color(241, 241, 241);
+		
+		gui_handler = new GUIHandler(background_color, pressed_color, outline_color, font_color, 0.9f);
+		gui_handler.addButton(new Button(25, 25, 80, 30, "▶"), "run");
+		gui_handler.addButton(new Button(115, 25, 80, 30, "x1"), "speed");
 	}
 
 	public static void main(String[] args) {
@@ -142,7 +163,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Mouse: " + mouse_x + ", " + mouse_y);
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + vacuum.getSpeed() : "paused"));
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
@@ -163,7 +184,22 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 	public void update() {
 		input.update();
-		vacuum.update();
+		
+		if (gui_handler.getButtons().get("run").isPressed()) {
+			run_simulation = !run_simulation;
+			
+			gui_handler.changeButtonText("run", run_simulation ? "❚❚" : "▶");
+		}
+		
+		if (gui_handler.getButtons().get("speed").isPressed()) {
+			vacuum.updateSpeed();
+			
+			gui_handler.changeButtonText("speed", "x"+vacuum.getSpeed());
+		}
+		
+		if(run_simulation) {
+			vacuum.update();
+		}
 	}
 
 	public void render() {
@@ -171,9 +207,6 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		bs = getBufferStrategy();
 		if (bs == null) {
 			createBufferStrategy(3);
-			Graphics2D g_trail = vacuum_trail.createGraphics();
-			g_trail.fillRect(0, 0, WIDTH, HEIGHT);
-			g_trail.dispose();
 			
 			return;
 		}
@@ -181,32 +214,34 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHints(rh);
         
-		g.setColor(Color.white);
+		g.setColor(new Color(255, 202, 128));
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		g.setFont(font);
 		// END INIT CODE
-		
-		//g.setColor(new Color(46, 204, 138));
-		//g.fillRect(0, 0, SCL_WIDTH, SCL_HEIGHT);
-		//g.setColor(Color.WHITE);
-		//g.drawString(("Player - " + player.getPosition().x + ", " + player.getPosition().y), 5, 10);
-		//g.drawString(("World - " + world.getPosition().x + ", " + world.getPosition().y), 5, 25);
 
-		renderObstacles(g);
+		g.drawImage(planks, 0, 0, null);
+		renderTables(g);
 		
-		Graphics2D g_trail = vacuum_trail.createGraphics();
+		Graphics2D g_trail = dirt.createGraphics();
 		
-		g_trail.setColor(new Color(200, 200, 200));
+		g_trail.setComposite(AlphaComposite.Src);
+		g_trail.setColor(new Color(0, 0, 0, 0));
 		g_trail.fillOval(vacuum.getPosition().x, vacuum.getPosition().y, vacuum.diameter, vacuum.diameter);
 		
 		g_trail.dispose();
 		
-		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f));
-		g.drawImage(vacuum_trail, 0, 0, null);
-		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+		//g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
+		g.drawImage(dirt, 0, 0, null);
+		//g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+		
+		renderObstacles(g);
 		
 		g.setColor(Color.black);
 		g.fillOval(vacuum.getPosition().x, vacuum.getPosition().y, vacuum.diameter, vacuum.diameter);
+
+		gui_handler.update(input, mouse_x, mouse_y);
+		
+		gui_handler.render(g);
 		
 		// CLOSING CODE
 		g.dispose();
@@ -215,15 +250,29 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	}
 	
 	public void renderObstacles(Graphics2D g) {
-		g.setColor(Color.gray);
+		//g.setColor(Color.GRAY);
 		for (Obstacle obstacle : collision_model.obstacles) {
 			if (obstacle.colliders.length > 1) {
-				g.setColor(Color.darkGray);
-				g.fillRect(obstacle.colliders[0].x, obstacle.colliders[0].y, obstacle.width + Obstacle.LEG_SIZE, obstacle.height + Obstacle.LEG_SIZE);
-				g.setColor(Color.gray);
+				//g.setColor(Color.GRAY);
+				//g.fillRect(obstacle.colliders[0].x, obstacle.colliders[0].y, obstacle.width + Obstacle.LEG_SIZE, obstacle.height + Obstacle.LEG_SIZE);
+				//g.setColor(Color.DARK_GRAY);
+				
+				g.drawImage(table_legs, obstacle.colliders[0].x, obstacle.colliders[0].y, null);
+			} else {
+				g.drawImage(chest, obstacle.colliders[0].x, obstacle.colliders[0].y, null);
 			}
-			for (Rectangle rectangle : obstacle.colliders) {
-				g.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+		}
+	}
+	
+	public void renderTables(Graphics2D g) {
+		//g.setColor(Color.GRAY);
+		for (Obstacle obstacle : collision_model.obstacles) {
+			if (obstacle.colliders.length > 1) {
+				//g.setColor(Color.GRAY);
+				//g.fillRect(obstacle.colliders[0].x, obstacle.colliders[0].y, obstacle.width + Obstacle.LEG_SIZE, obstacle.height + Obstacle.LEG_SIZE);
+				//g.setColor(Color.DARK_GRAY);
+				
+				g.drawImage(table, obstacle.colliders[0].x, obstacle.colliders[0].y, null);
 			}
 		}
 	}

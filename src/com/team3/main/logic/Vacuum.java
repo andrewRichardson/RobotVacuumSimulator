@@ -11,6 +11,7 @@ public class Vacuum {
 	
 	private Vector2f position;
 	private double rotation, move_speed;
+	private final double base_speed;
 	public final int diameter = 24;
 	
 	private String movement_method;
@@ -24,6 +25,7 @@ public class Vacuum {
 		position = init_position;
 		rotation = init_rotation;
 		this.move_speed = move_speed;
+		base_speed = move_speed;
 		
 		this.movement_method = movement_method;
 		
@@ -31,6 +33,21 @@ public class Vacuum {
 		
 		this.collision_model = collision_model;
 		collider = new Ellipse2D.Double(init_position.x, init_position.y, diameter, diameter);
+	}
+	
+	public int getSpeed() {
+		return (int) (move_speed / base_speed);
+	}
+	
+	public void updateSpeed() {
+		if(move_speed == base_speed * 100.0)
+			move_speed = base_speed;
+		else if(move_speed == base_speed)
+			move_speed = base_speed * 50.0;
+		else if(move_speed == base_speed * 50.0)
+			move_speed = base_speed * 100.0;
+		else
+			move_speed = base_speed;
 	}
 	
 	public Vector2d getPosition() {

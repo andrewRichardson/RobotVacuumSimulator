@@ -12,7 +12,7 @@ public class InputHandler implements KeyListener, MouseListener, MouseWheelListe
 	
 	private boolean[] keys = new boolean[65536];
 	public boolean[] mouse = new boolean[508];
-	public boolean up, down, left, right, space, escape, mouseLeft, mouseRight, mouseScrollUp, mouseScrollDown;
+	public boolean up, down, left, right, space, escape, mouseLeft, mouseRight, mouseScrollUp, mouseScrollDown, mouseClicked = false;
 	public boolean focus = false;
 
 	public void update() {
@@ -24,6 +24,7 @@ public class InputHandler implements KeyListener, MouseListener, MouseWheelListe
 		escape = keys[KeyEvent.VK_ESCAPE];
 		mouseLeft = mouse[MouseEvent.BUTTON1];
 		mouseRight = mouse[MouseEvent.BUTTON3];
+		mouseClicked = mouse[MouseEvent.MOUSE_CLICKED];
 	}
 
 	public void keyPressed(KeyEvent e) {
@@ -61,7 +62,7 @@ public class InputHandler implements KeyListener, MouseListener, MouseWheelListe
 	}
 
 	public void mouseClicked(MouseEvent e) {
-		
+		mouse[MouseEvent.MOUSE_CLICKED] = !mouseClicked;
 	}
 
 	public void mouseEntered(MouseEvent e) {
