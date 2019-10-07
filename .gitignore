@@ -53,3 +53,9 @@ local.properties
 .cache-main
 .scala_dependencies
 .worksheet
+
+# Intellij specific
+.idea
+
+RobotVacuum.iml
+RobotVacuum.eml
