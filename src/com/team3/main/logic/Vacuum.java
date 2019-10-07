@@ -120,6 +120,14 @@ public class Vacuum {
 			}
 		}
 		
+		for (Obstacle obstacle : collision_model.getWalls()) {
+			for (Rectangle rectangle : obstacle.colliders) {
+				if (collider.intersects(rectangle)) {
+					has_collided = true;
+				}
+			}
+		}
+		
 		return has_collided;
 	}
 }

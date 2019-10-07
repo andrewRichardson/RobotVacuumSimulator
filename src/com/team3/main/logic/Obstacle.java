@@ -7,6 +7,7 @@ public class Obstacle {
 	public static final int LEG_SIZE = 6, MINIMUM_GAP_SIZE = 30;
 	public final int width, height;
 	public Rectangle[] colliders;
+	public final boolean is_table_or_chair;
 	
 	public Obstacle(int x, int y, int width, int height, boolean is_table_or_chair) {
 		if (width - LEG_SIZE < MINIMUM_GAP_SIZE)
@@ -16,6 +17,8 @@ public class Obstacle {
 		
 		this.width = width;
 		this.height = height;
+		
+		this.is_table_or_chair = is_table_or_chair;
 		
 		if (is_table_or_chair) {
 			colliders = new Rectangle[4];

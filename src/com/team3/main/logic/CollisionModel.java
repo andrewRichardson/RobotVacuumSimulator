@@ -7,6 +7,7 @@ public class CollisionModel {
 	
 	public final int width, height;
 	public List<Obstacle> obstacles;
+	private Obstacle[] walls;
 	
 	public CollisionModel(int width, int height, ArrayList<Obstacle> obstacles) {
 		this.width = width;
@@ -25,9 +26,15 @@ public class CollisionModel {
 	}
 	
 	private void init_bounds() {
-		obstacles.add(new Obstacle(-(Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), 0, (Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), height, false));
-		obstacles.add(new Obstacle(width, 0, (Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), height, false));
-		obstacles.add(new Obstacle(0, -(Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), width, (Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), false));
-		obstacles.add(new Obstacle(0, height, width, (Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), false));
+		walls = new Obstacle[]{
+				new Obstacle(-(Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), 0, (Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), height, false),
+				new Obstacle(width, 0, (Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), height, false),
+				new Obstacle(0, -(Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), width, (Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), false),
+				new Obstacle(0, height, width, (Obstacle.MINIMUM_GAP_SIZE + Obstacle.LEG_SIZE), false)
+			};
+	}
+	
+	public Obstacle[] getWalls() {
+		return walls;
 	}
 }
