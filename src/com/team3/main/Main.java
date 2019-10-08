@@ -53,7 +53,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private Vacuum vacuum;
 	private CollisionModel collision_model;
 	private GUIHandler gui_handler;
-	private boolean run_simulation = false;
+	private boolean run_simulation = false, show_obstacles = true;
 	
 	public Main() {
 		// INIT VARS
@@ -113,6 +113,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		gui_handler = new GUIHandler(background_color, pressed_color, background_color, font_color, 0.9f);
 		gui_handler.addButton(new Button(25, 25, 80, 30, "▶"), "run");
 		gui_handler.addButton(new Button(115, 25, 80, 30, "x1"), "speed");
+		gui_handler.addButton(new Button(205, 25, 150, 30, "Toggle Obstacles"), "obstacles");
 	}
 
 	public static void main(String[] args) {
@@ -197,6 +198,11 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			
 			gui_handler.changeButtonText("speed", "x"+vacuum.getSpeed());
 		}
+
+		if (gui_handler.getButtons().get("obstacles").isPressed()) {
+			vacuum.collide_obstacles = !vacuum.collide_obstacles;
+			show_obstacles = !show_obstacles;
+		}
 		
 		if(run_simulation) {
 			vacuum.update();
@@ -235,8 +241,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		//g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2f));
 		g.drawImage(dirt_image, 0, 0, null);
 		//g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-		
-		renderObstacles(g);
+
+		if (show_obstacles)
+			renderObstacles(g);
 		
 		//g.setColor(Color.black);
 		//g.fillOval(vacuum.getPosition().x, vacuum.getPosition().y, vacuum.diameter, vacuum.diameter);

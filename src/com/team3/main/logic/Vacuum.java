@@ -12,29 +12,29 @@ public class Vacuum {
 	private Vector2f position;
 	private double rotation, move_speed;
 	private final double base_speed;
-	public final int diameter = 24;
-	
+
 	private String movement_method;
-	
 	private Random random;
-	
 	private CollisionModel collision_model;
 	private Ellipse2D.Double collider;
-	
+
+	public final int diameter = 24;
+	public boolean collide_obstacles = true;
+
 	public Vacuum(Vector2f init_position, double init_rotation, double move_speed, String movement_method, CollisionModel collision_model) {
 		position = init_position;
 		rotation = init_rotation;
 		this.move_speed = move_speed;
 		base_speed = move_speed;
-		
+
 		this.movement_method = movement_method;
-		
+
 		random = new Random();
-		
+
 		this.collision_model = collision_model;
 		collider = new Ellipse2D.Double(init_position.x, init_position.y, diameter, diameter);
 	}
-	
+
 	public int getSpeed() {
 		return (int) (move_speed / base_speed);
 	}
@@ -111,11 +111,13 @@ public class Vacuum {
 	
 	private boolean collision_detection() {
 		boolean has_collided = false;
-		
-		for (Obstacle obstacle : collision_model.obstacles) {
-			for (Rectangle rectangle : obstacle.colliders) {
-				if (collider.intersects(rectangle)) {
-					has_collided = true;
+
+		if (collide_obstacles) {
+			for (Obstacle obstacle : collision_model.obstacles) {
+				for (Rectangle rectangle : obstacle.colliders) {
+					if (collider.intersects(rectangle)) {
+						has_collided = true;
+					}
 				}
 			}
 		}
