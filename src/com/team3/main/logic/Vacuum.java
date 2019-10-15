@@ -1,7 +1,8 @@
 package com.team3.main.logic;
 
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
 import java.util.Random;
 
 import com.team3.main.math.Vector2d;
@@ -10,7 +11,7 @@ import com.team3.main.math.Vector2f;
 public class Vacuum {
 	
 	private Vector2f position;
-	private double rotation, move_speed;
+	private double rotation, move_steps;
 	private final double base_speed;
 
 	private String movement_method;
@@ -18,14 +19,17 @@ public class Vacuum {
 	private CollisionModel collision_model;
 	private Ellipse2D.Double collider;
 
-	public final int diameter = 24;
+	private BufferedImage dirt_image;
+
 	public boolean collide_obstacles = true;
+    public final int diameter = 24;
+	public final static String RANDOM = "Random", SPIRAL = "Spiral", SNAKE = "Snake", WALL_FOLLOW = "Wall Follow";
 
 	public Vacuum(Vector2f init_position, double init_rotation, double move_speed, String movement_method, CollisionModel collision_model) {
 		position = init_position;
 		rotation = init_rotation;
-		this.move_speed = move_speed;
 		base_speed = move_speed;
+		move_steps = 1;
 
 		this.movement_method = movement_method;
 
@@ -36,19 +40,39 @@ public class Vacuum {
 	}
 
 	public int getSpeed() {
-		return (int) (move_speed / base_speed);
+		return (int) (move_steps);
 	}
 	
 	public void updateSpeed() {
-		if(move_speed == base_speed * 100.0)
-			move_speed = base_speed;
-		else if(move_speed == base_speed)
-			move_speed = base_speed * 50.0;
-		else if(move_speed == base_speed * 50.0)
-			move_speed = base_speed * 100.0;
+		if(move_steps == 100.0)
+			move_steps = 1.0;
+		else if(move_steps == 1.0)
+			move_steps = 50.0;
+		else if(move_steps == 50.0)
+			move_steps = 100.0;
 		else
-			move_speed = base_speed;
+			move_steps = 1.0;
 	}
+
+    public void updateMovementMethod() {
+        switch (movement_method) {
+            case RANDOM:
+                movement_method = SNAKE;
+                break;
+            case SNAKE:
+                movement_method = SPIRAL;
+                break;
+            case SPIRAL:
+                movement_method = WALL_FOLLOW;
+                break;
+            case WALL_FOLLOW:
+                movement_method = RANDOM;
+                break;
+            default:
+                movement_method = RANDOM;
+                break;
+        }
+    }
 	
 	public Vector2d getPosition() {
 		return position.getVector2d();
@@ -58,29 +82,43 @@ public class Vacuum {
 		return rotation;
 	}
 	
-	public void update() {
-		switch (movement_method) {
-		case "random":
-			random();
-			break;
-		case "snake":
-			snake();
-			break;
-		case "spiral":
-			spiral();
-			break;
-		case "wall_follow":
-			wallFollow();
-			break;
-		default:
-			System.out.println("Error, bad movement method specified.");
-			random();
-			break;
-		}
+	public void update(BufferedImage dirt_image) {
+	    this.dirt_image = dirt_image;
+
+        RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Graphics2D g_trail = dirt_image.createGraphics();
+        g_trail.setRenderingHints(rh);
+        g_trail.setComposite(AlphaComposite.Src);
+        g_trail.setColor(new Color(0, 0, 0, 0));
+
+	    for (int i = 0; i < move_steps; i++) {
+            switch (movement_method) {
+                case "Random":
+                    random();
+                    break;
+                case "Snake":
+                    snake();
+                    break;
+                case "Spiral":
+                    spiral();
+                    break;
+                case "Wall Follow":
+                    wallFollow();
+                    break;
+                default:
+                    System.out.println("Error, bad movement method specified.");
+                    random();
+                    break;
+            }
+
+            g_trail.fillOval(getPosition().x, getPosition().y, diameter, diameter);
+        }
+
+        g_trail.dispose();
 	}
 	
 	private void random() {
-		Vector2f delta_position = new Vector2f(Math.cos(rotation) * move_speed, Math.sin(rotation) * move_speed);
+		Vector2f delta_position = new Vector2f(Math.cos(rotation) * base_speed, Math.sin(rotation) * base_speed);
 		position.add(delta_position);
 		
 		collider.x = position.x;
@@ -132,4 +170,8 @@ public class Vacuum {
 		
 		return has_collided;
 	}
+
+    public String getMovementMethod() {
+	    return movement_method;
+    }
 }
