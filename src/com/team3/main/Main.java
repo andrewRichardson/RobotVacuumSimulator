@@ -1,6 +1,5 @@
 package com.team3.main;
 
-import java.awt.AlphaComposite;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -189,7 +188,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		if (gui_handler.getButtons().get("run").isPressed()) {
 			run_simulation = !run_simulation;
 			
-			gui_handler.changeButtonText("run", run_simulation ? "❚❚" : "▶");
+			gui_handler.changeButtonText("run", run_simulation ? "❚❚" : "►");
 		}
 		
 		if (gui_handler.getButtons().get("speed").isPressed()) {
