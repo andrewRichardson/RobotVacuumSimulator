@@ -12,14 +12,13 @@ import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.Buffer;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import com.team3.main.logic.CollisionModel;
-import com.team3.main.logic.Obstacle;
-import com.team3.main.logic.Vacuum;
+import com.team3.main.entities.*;
 import com.team3.main.math.Vector2f;
 import com.team3.main.ui.Button;
 import com.team3.main.ui.GUIHandler;
@@ -45,11 +44,13 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private InputHandler input;
 	// END UTIL VARS
 
-	private BufferedImage planks_image, chest_image, table_image, dirt_image, table_legs_image, vacuum_image;
+	private BufferedImage dirt_overlay;
 	private Font font;
-	private Vacuum vacuum;
-	private CollisionModel collision_model;
+	private Robot robot;
+	private FloorPlan default_floor_plan;
 	private GUIHandler gui_handler;
+	private SimulationController simulationController;
+	private Display display;
 	private boolean run_simulation = false, show_obstacles = true;
 	
 	public Main() {
@@ -69,49 +70,51 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 		// GRAPHICS VARS
 		font = new Font("Arial", Font.BOLD, 12);
-		// END GRAPHICS VARS
-		
-		// Images
+
 		try {
-			planks_image = ImageIO.read(new File("res/wood_planks.png"));
-			chest_image = ImageIO.read(new File("res/chest.png"));
-			table_image = ImageIO.read(new File("res/table.png"));
-			table_legs_image = ImageIO.read(new File("res/table_legs.png"));
-			dirt_image = ImageIO.read(new File("res/dirt.png"));
-			vacuum_image = ImageIO.read(new File("res/vacuum.png"));
+			dirt_overlay = ImageIO.read(new File("res/dirt.png"));
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
-		
+		// END GRAPHICS VARS
+
 		// Collision handling for vacuum and obstacles
-		collision_model = new CollisionModel(WIDTH, HEIGHT);
+		default_floor_plan = new FloorPlan(WIDTH, HEIGHT);
 		Random random = new Random();
 		
 		// Generate random obstacles
 		for (int r = 0; r < HEIGHT; r += 100) {
 			for (int c = 0; c < WIDTH; c += 100) {
 				if (random.nextBoolean()) {
-					int width = 38;
-					int height = 38;
-					
-					collision_model.obstacles.add(new Obstacle(c, r, width, height, random.nextBoolean()));
+					int width = 44;
+					int height = 44;
+					if (random.nextBoolean())
+						default_floor_plan.obstacles.add(new Table(c, r, width, height));
+					else
+						default_floor_plan.obstacles.add(new Chest(c, r, width + Obstacle.LEG_SIZE, height + Obstacle.LEG_SIZE));
 				}
 			}
 		}
-		
+
 		// Create Vacuum
-		vacuum = new Vacuum(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI + 0.4, 0.25, Vacuum.RANDOM, collision_model);
+		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI + 0.4, 0.25);
+
+		// Create SimulationController
+		simulationController = new SimulationController(default_floor_plan, robot);
+
+		// Create Display
+		display = new Display();
 		
 		Color background_color = new Color(31, 133, 222);
 		Color pressed_color = new Color(30, 80, 130);
 		//Color outline_color = new Color(38, 96, 145);
 		Color font_color = new Color(241, 241, 241);
 		
-		gui_handler = new GUIHandler(background_color, pressed_color, background_color, font_color, 0.9f);
+		gui_handler = new GUIHandler(background_color, pressed_color, background_color, font_color, 0.75f);
 		gui_handler.addButton(new Button(25, 25, 80, 30, "▶"), "run");
 		gui_handler.addButton(new Button(115, 25, 80, 30, "x1"), "speed");
 		gui_handler.addButton(new Button(205, 25, 150, 30, "Toggle Obstacles"), "obstacles");
-		gui_handler.addButton(new Button(365, 25, 150, 30, "Path: " + vacuum.getMovementMethod()), "movement");
+		gui_handler.addButton(new Button(365, 25, 150, 30, "Path: " + simulationController.getMovementMethod()), "movement");
 	}
 
 	public static void main(String[] args) {
@@ -163,7 +166,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + vacuum.getSpeed() : "paused"));
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulationController.getSpeed() : "paused"));
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
@@ -188,28 +191,27 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		if (gui_handler.getButtons().get("run").isPressed()) {
 			run_simulation = !run_simulation;
 			
-			gui_handler.changeButtonText("run", run_simulation ? "❚❚" : "►");
-		}
-		
-		if (gui_handler.getButtons().get("speed").isPressed()) {
-			vacuum.updateSpeed();
-			
-			gui_handler.changeButtonText("speed", "x"+vacuum.getSpeed());
-		}
-
-		if (gui_handler.getButtons().get("obstacles").isPressed()) {
-			vacuum.collide_obstacles = !vacuum.collide_obstacles;
-			show_obstacles = !show_obstacles;
-		}
-
-		if (gui_handler.getButtons().get("movement").isPressed()) {
-			vacuum.updateMovementMethod();
-
-			gui_handler.changeButtonText("movement", "Path: " + vacuum.getMovementMethod());
+			gui_handler.changeButtonText("run", run_simulation ? "❚❚" : "▶");
 		}
 		
 		if(run_simulation) {
-			vacuum.update(dirt_image);
+			simulationController.update(dirt_overlay, show_obstacles);
+		} else {
+			if (gui_handler.getButtons().get("speed").isPressed()) {
+				simulationController.updateSpeed();
+
+				gui_handler.changeButtonText("speed", "x"+ simulationController.getSpeed());
+			}
+
+			if (gui_handler.getButtons().get("obstacles").isPressed()) {
+				show_obstacles = !show_obstacles;
+			}
+
+			if (gui_handler.getButtons().get("movement").isPressed()) {
+				simulationController.updateMovementMethod();
+
+				gui_handler.changeButtonText("movement", "Path: " + simulationController.getMovementMethod());
+			}
 		}
 	}
 
@@ -231,42 +233,15 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		g.setFont(font);
 		// END INIT CODE
 
-		g.drawImage(planks_image, 0, 0, null);
-
-		g.drawImage(dirt_image, 0, 0, null);
-
-		if (show_obstacles)
-			renderObstacles(g);
-		
-		g.drawImage(vacuum_image, vacuum.getPosition().x, vacuum.getPosition().y, null);
+		display.render(g, simulationController, show_obstacles, dirt_overlay);
 
 		gui_handler.update(input, mouse_x, mouse_y);
-		
-		gui_handler.render(g);
+		gui_handler.render(g, run_simulation);
 		
 		// CLOSING CODE
 		g.dispose();
 		bs.show();
 		// END CLOSING CODE
-	}
-	
-	private void renderObstacles(Graphics2D g) {
-		for (Obstacle obstacle : collision_model.obstacles) {
-			if (obstacle.is_table_or_chair) {
-				g.drawImage(table_legs_image, obstacle.colliders[0].x, obstacle.colliders[0].y, null);
-				g.drawImage(table_image, obstacle.colliders[0].x, obstacle.colliders[0].y, null);
-			} else {
-				g.drawImage(chest_image, obstacle.colliders[0].x, obstacle.colliders[0].y, null);
-			}
-		}
-	}
-	
-	public void renderTables(Graphics2D g) {
-		for (Obstacle obstacle : collision_model.obstacles) {
-			if (obstacle.is_table_or_chair) {
-				g.drawImage(table_image, obstacle.colliders[0].x, obstacle.colliders[0].y, null);
-			}
-		}
 	}
 	
 	public int getMouseX(){

@@ -5,7 +5,7 @@ import com.team3.main.math.Vector2f;
 
 public class MathUtil {
 	
-	public static double clampf(double value, double min, double max) {
+	public static double clamp(double value, double min, double max) {
 		if (value < min) {
 			return min;
 		}else if (value > max) {
@@ -15,14 +15,14 @@ public class MathUtil {
 		return value;
 	}
 	
-	public static Vector2f clamp2f(Vector2f value, double min, double max) {
-		double x = clampf(value.x, min, max);
-		double y = clampf(value.y, min, max);
+	public static Vector2f clamp2(Vector2f value, double min, double max) {
+		double x = clamp(value.x, min, max);
+		double y = clamp(value.y, min, max);
 		
 		return new Vector2f(x, y);
 	}
 	
-	public static int clampd(int value, int min, int max) {
+	public static int clamp(int value, int min, int max) {
 		if (value < min) {
 			return min;
 		}
@@ -34,9 +34,9 @@ public class MathUtil {
 		return value;
 	}
 	
-	public static Vector2d clamp2d(Vector2d value, int min, int max) {
-		int x = clampd(value.x, min, max);
-		int y = clampd(value.y, min, max);
+	public static Vector2d clamp2(Vector2d value, int min, int max) {
+		int x = clamp(value.x, min, max);
+		int y = clamp(value.y, min, max);
 		
 		return new Vector2d(x, y);
 	}

@@ -19,7 +19,7 @@ public class GUIHandler {
 	private final int stroke = 1;
 	private boolean last_click_status = false;
 	private final float alpha;
-	BasicStroke stroke_style = new BasicStroke(stroke, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND);
+	private BasicStroke stroke_style = new BasicStroke(stroke, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND);
 	
 	public GUIHandler() {
 		button_list = new HashMap<String, Button>();
@@ -67,24 +67,40 @@ public class GUIHandler {
 		button_list.replace(name, new_button);
 	}
 	
-	public void render(Graphics2D g) {
+	public void render(Graphics2D g, boolean run_simulation) {
 		g.setStroke(stroke_style);
-		for (Button button : button_list.values()) {
+
+		if(run_simulation) {
+			Button button = button_list.get("run");
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
-			
+
 			g.setColor(button.pressed ? pressed_color : button_color);
 			g.fill(button.getBounds());
-			
+
 			g.setColor(outline_color);
 			g.draw(button.getBounds());
-			
+
 			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
 			g.setColor(font_color);
 			drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
+		} else {
+			for (Button button : button_list.values()) {
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+
+				g.setColor(button.pressed ? pressed_color : button_color);
+				g.fill(button.getBounds());
+
+				g.setColor(outline_color);
+				g.draw(button.getBounds());
+
+				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+				g.setColor(font_color);
+				drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
+			}
 		}
 	}
 	
-	public void drawCenteredString(Graphics g, String text, Rectangle rect, Font font) {
+	private void drawCenteredString(Graphics g, String text, Rectangle rect, Font font) {
 	    // Get the FontMetrics
 	    FontMetrics metrics = g.getFontMetrics(font);
 	    // Determine the X coordinate for the text
