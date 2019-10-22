@@ -1,8 +1,7 @@
 package com.team3.main;
 
-import com.team3.main.entities.FloorPlan;
+import com.team3.main.entities.House;
 import com.team3.main.entities.Obstacle;
-import com.team3.main.ui.GUIHandler;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -38,28 +37,49 @@ public class Display {
         g.drawImage(vacuum_image, simulationController.getRobot().getPosition2d().x, simulationController.getRobot().getPosition2d().y, null);
     }
 
-    private void renderObstacles(Graphics2D g, FloorPlan floorPlan) {
-        for (Obstacle obstacle : floorPlan.obstacles) {
+    private void renderObstacles(Graphics2D g, House house) {
+        for (Obstacle obstacle : house.obstacles.values()) {
             if (obstacle.is_table) {
-                g.drawImage(table_legs_image, obstacle.colliders[0].x, obstacle.colliders[0].y, null);
-                g.drawImage(table_image, obstacle.colliders[0].x, obstacle.colliders[0].y, null);
+                g.drawImage(table_legs_image, obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, null);
+                g.drawImage(table_image, obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, null);
             } else {
-                g.drawImage(chest_image, obstacle.colliders[0].x, obstacle.colliders[0].y, null);
+                g.drawImage(chest_image, obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, null);
             }
         }
     }
 
-    private void renderObstacleBounds(Graphics2D g, FloorPlan floorPlan) {
+    private void renderObstacleBounds(Graphics2D g, House house) {
         g.setColor(Color.RED);
-        for (Obstacle obstacle : floorPlan.obstacles) {
+        for (Obstacle obstacle : house.obstacles.values()) {
             if (obstacle.is_table) {
-                g.fillRect(obstacle.colliders[0].x, obstacle.colliders[0].y, obstacle.colliders[0].width, obstacle.colliders[0].height);
-                g.fillRect(obstacle.colliders[1].x, obstacle.colliders[1].y, obstacle.colliders[1].width, obstacle.colliders[1].height);
-                g.fillRect(obstacle.colliders[2].x, obstacle.colliders[2].y, obstacle.colliders[2].width, obstacle.colliders[2].height);
-                g.fillRect(obstacle.colliders[3].x, obstacle.colliders[3].y, obstacle.colliders[3].width, obstacle.colliders[3].height);
+                g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
+                g.fillRect(obstacle.collision_bounds[1].x, obstacle.collision_bounds[1].y, obstacle.collision_bounds[1].width, obstacle.collision_bounds[1].height);
+                g.fillRect(obstacle.collision_bounds[2].x, obstacle.collision_bounds[2].y, obstacle.collision_bounds[2].width, obstacle.collision_bounds[2].height);
+                g.fillRect(obstacle.collision_bounds[3].x, obstacle.collision_bounds[3].y, obstacle.collision_bounds[3].width, obstacle.collision_bounds[3].height);
             } else {
-                g.fillRect(obstacle.colliders[0].x, obstacle.colliders[0].y, obstacle.colliders[0].width, obstacle.colliders[0].height);
+                g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
             }
         }
+    }
+
+    public void clearObstacleDirt(House house, BufferedImage dirt_image) {
+        RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Graphics2D g = dirt_image.createGraphics();
+        g.setRenderingHints(rh);
+        g.setComposite(AlphaComposite.Src);
+        g.setColor(new Color(0, 0, 0, 0));
+
+        for (Obstacle obstacle : house.obstacles.values()) {
+            if (obstacle.is_table) {
+                g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
+                g.fillRect(obstacle.collision_bounds[1].x, obstacle.collision_bounds[1].y, obstacle.collision_bounds[1].width, obstacle.collision_bounds[1].height);
+                g.fillRect(obstacle.collision_bounds[2].x, obstacle.collision_bounds[2].y, obstacle.collision_bounds[2].width, obstacle.collision_bounds[2].height);
+                g.fillRect(obstacle.collision_bounds[3].x, obstacle.collision_bounds[3].y, obstacle.collision_bounds[3].width, obstacle.collision_bounds[3].height);
+            } else {
+                g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
+            }
+        }
+
+        g.dispose();
     }
 }

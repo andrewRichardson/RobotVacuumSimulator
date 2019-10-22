@@ -8,7 +8,9 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.team3.main.util.InputHandler;
 
@@ -67,12 +69,14 @@ public class GUIHandler {
 		button_list.replace(name, new_button);
 	}
 	
-	public void render(Graphics2D g, boolean run_simulation) {
+	public void render(Graphics2D g, boolean run_simulation, boolean draw_mode, boolean tool_mode) {
 		g.setStroke(stroke_style);
 
 		if(run_simulation) {
+
+			// Draw Run Button
 			Button button = button_list.get("run");
-			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+			g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha * 0.5f));
 
 			g.setColor(button.pressed ? pressed_color : button_color);
 			g.fill(button.getBounds());
@@ -84,18 +88,76 @@ public class GUIHandler {
 			g.setColor(font_color);
 			drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
 		} else {
-			for (Button button : button_list.values()) {
-				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+			if (draw_mode) {
+				if (tool_mode) {
+					// Draw Draw Mode Button
+					Button button = button_list.get("simulation");
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 
-				g.setColor(button.pressed ? pressed_color : button_color);
-				g.fill(button.getBounds());
+					g.setColor(button.pressed ? pressed_color : button_color);
+					g.fill(button.getBounds());
 
-				g.setColor(outline_color);
-				g.draw(button.getBounds());
+					g.setColor(outline_color);
+					g.draw(button.getBounds());
 
-				g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-				g.setColor(font_color);
-				drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+					g.setColor(font_color);
+					drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
+
+					// Draw Brush Button
+					button = button_list.get("brush");
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+
+					g.setColor(button.pressed ? pressed_color : button_color);
+					g.fill(button.getBounds());
+
+					g.setColor(outline_color);
+					g.draw(button.getBounds());
+
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+					g.setColor(font_color);
+					drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
+				} else {
+					// Draw Tool Mode Button
+					Button button = button_list.get("tools");
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha * 0.5f));
+
+					g.setColor(button.pressed ? pressed_color : button_color);
+					g.fill(button.getBounds());
+
+					g.setColor(outline_color);
+					g.draw(button.getBounds());
+
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.75f));
+					g.setColor(font_color);
+					drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
+				}
+			} else {
+				List<Button> button_temp_list = new ArrayList<Button>();
+				button_temp_list.add(button_list.get("brush"));
+				button_temp_list.add(button_list.get("simulation"));
+				button_temp_list.add(button_list.get("tools"));
+
+				button_list.remove("brush");
+				button_list.remove("simulation");
+				button_list.remove("tools");
+
+				for (Button button : button_list.values()) {
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
+
+					g.setColor(button.pressed ? pressed_color : button_color);
+					g.fill(button.getBounds());
+
+					g.setColor(outline_color);
+					g.draw(button.getBounds());
+
+					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+					g.setColor(font_color);
+					drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
+				}
+				button_list.put("brush", button_temp_list.get(0));
+				button_list.put("simulation", button_temp_list.get(1));
+				button_list.put("tools", button_temp_list.get(2));
 			}
 		}
 	}

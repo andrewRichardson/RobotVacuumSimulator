@@ -1,8 +1,12 @@
 package com.team3.main;
 
-import com.team3.main.entities.FloorPlan;
+import com.team3.main.entities.Chest;
+import com.team3.main.entities.House;
 import com.team3.main.entities.Robot;
+import com.team3.main.entities.Table;
+import com.team3.main.math.Vector2d;
 import com.team3.main.math.Vector2f;
+import com.team3.main.util.InputHandler;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -11,17 +15,46 @@ import java.util.Random;
 public class SimulationController {
 
     public final static String RANDOM = "Random", SPIRAL = "Spiral", SNAKE = "Snake", WALL_FOLLOW = "Wall Follow";
+    public final static String ERASE = "ERASE", TABLE = "TABLE", CHEST = "CHEST";
 
-    private FloorPlan current_floor_plan;
+    private House current_floor_plan;
     private Robot robot;
     private String movement_method = RANDOM;
     private Random random;
     private int move_steps = 1;
+    private boolean last_click_status = false, first_click = true;
 
-    public SimulationController(FloorPlan init_floor_plan, Robot robot) {
+    public SimulationController(House init_floor_plan, Robot robot) {
         random = new Random();
         current_floor_plan = init_floor_plan;
         this.robot = robot;
+    }
+
+    public void handleDraw(InputHandler inputHandler, int mouse_x, int mouse_y, String draw_brush) {
+        int grid_x = (int)Math.floor((double)mouse_x / (double) House.grid_size);
+        int grid_y = (int)Math.floor((double)mouse_y / (double) House.grid_size);
+
+        int index = 16 * grid_y + grid_x;
+        Vector2d position = new Vector2d(grid_x * House.grid_size + 9, grid_y * House.grid_size + 9);
+
+        if (inputHandler.mouseClicked != last_click_status) {
+            if (first_click) {
+                first_click = false;
+                last_click_status = inputHandler.mouseClicked;
+            } else {
+                last_click_status = inputHandler.mouseClicked;
+
+                current_floor_plan.obstacles.remove(index);
+                switch (draw_brush) {
+                    case TABLE:
+                        current_floor_plan.obstacles.put(index, new Table(position.x, position.y));
+                        break;
+                    case CHEST:
+                        current_floor_plan.obstacles.put(index, new Chest(position.x, position.y));
+                        break;
+                }
+            }
+        }
     }
 
     public void update(BufferedImage dirt_image, boolean collide_obstacles) {
@@ -124,7 +157,7 @@ public class SimulationController {
         return robot;
     }
 
-    public FloorPlan getFloorPlan() {
+    public House getFloorPlan() {
         return current_floor_plan;
     }
 }

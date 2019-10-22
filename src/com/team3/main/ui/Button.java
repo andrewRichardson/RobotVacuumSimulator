@@ -15,8 +15,7 @@ public class Button {
 		bounds = new RoundRectangle2D.Double(x, y, width, height, 5, 5);
 		this.text = name;
 	}
-	
-	
+
 	/**
 	 * @return Rectangle bounds of button
 	 */

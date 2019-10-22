@@ -19,7 +19,7 @@ public class Robot {
 	private final Vector2f vacuum_offset = new Vector2f(-5.5, -18);
 	private final Vector2f left_whisker_offset = new Vector2f(-12.5, -19.5);
 	private final Vector2f right_whisker_offset = new Vector2f(12.5, -19.5);
-	public final int diameter = 24;
+	public static final int diameter = 24;
 
 	public Robot(Vector2f init_position, double init_rotation, double move_speed) {
 		position = init_position;

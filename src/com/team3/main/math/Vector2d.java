@@ -27,5 +27,9 @@ public class Vector2d {
 		x += other.x;
 		y += other.y;
 	}
+
+	public String toString() {
+		return "(" + x + ", " + y + ")";
+	}
 	
 }
