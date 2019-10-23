@@ -16,9 +16,9 @@ public class Robot {
 	private Vacuum vacuum;
 	private Whisker left_whisker, right_whisker;
 
-	private final Vector2f vacuum_offset = new Vector2f(-5.5, -18);
-	private final Vector2f left_whisker_offset = new Vector2f(-12.5, -19.5);
-	private final Vector2f right_whisker_offset = new Vector2f(12.5, -19.5);
+	private final Vector2f vacuum_offset = new Vector2f(6.5, 4);
+	private final Vector2f left_whisker_offset = new Vector2f(-0.5, 0);
+	private final Vector2f right_whisker_offset = new Vector2f(17.5, 0);
 	public static final int diameter = 24;
 
 	public Robot(Vector2f init_position, double init_rotation, double move_speed) {
@@ -34,17 +34,17 @@ public class Robot {
 
 	public void setPosition(Vector2f position) {
 		this.position = position;
-		bounds.x = position.x;
-		bounds.y = position.y;
+		bounds.x = this.position.x;
+		bounds.y = this.position.y;
 
-		vacuum.bounds.x = position.x + vacuum_offset.x;
-		vacuum.bounds.y = position.y + vacuum_offset.y;
+		vacuum.bounds.x = this.position.x + vacuum_offset.x;
+		vacuum.bounds.y = this.position.y + vacuum_offset.y;
 
-		left_whisker.bounds.x = position.x + left_whisker_offset.x;
-		left_whisker.bounds.y = position.y + left_whisker_offset.y;
+		left_whisker.bounds.x = this.position.x + left_whisker_offset.x;
+		left_whisker.bounds.y = this.position.y + left_whisker_offset.y;
 
-		right_whisker.bounds.x = position.x + right_whisker_offset.x;
-		right_whisker.bounds.y = position.y + right_whisker_offset.y;
+		right_whisker.bounds.x = this.position.x + right_whisker_offset.x;
+		right_whisker.bounds.y = this.position.y + right_whisker_offset.y;
 	}
 
 	public void addPosition(Vector2f position) {
@@ -53,14 +53,14 @@ public class Robot {
 		bounds.x = this.position.x;
 		bounds.y = this.position.y;
 
-		vacuum.bounds.x = position.x + vacuum_offset.x;
-		vacuum.bounds.y = position.y + vacuum_offset.y;
+		vacuum.bounds.x = this.position.x + vacuum_offset.x;
+		vacuum.bounds.y = this.position.y + vacuum_offset.y;
 
-		left_whisker.bounds.x = position.x + left_whisker_offset.x;
-		left_whisker.bounds.y = position.y + left_whisker_offset.y;
+		left_whisker.bounds.x = this.position.x + left_whisker_offset.x;
+		left_whisker.bounds.y = this.position.y + left_whisker_offset.y;
 
-		right_whisker.bounds.x = position.x + right_whisker_offset.x;
-		right_whisker.bounds.y = position.y + right_whisker_offset.y;
+		right_whisker.bounds.x = this.position.x + right_whisker_offset.x;
+		right_whisker.bounds.y = this.position.y + right_whisker_offset.y;
 	}
 
 	public void setRotation(double rotation) {

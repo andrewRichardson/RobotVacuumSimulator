@@ -101,7 +101,11 @@ public class SimulationController {
 
             robot.addRotation(direction);
         } else {
-            g_trail.fillOval(robot.getPosition2d().x, robot.getPosition2d().y, robot.diameter, robot.diameter);
+            g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
+            g_trail.fill(robot.getVacuumBounds());
+            g_trail.fill(robot.getLeftWhisker());
+            g_trail.fill(robot.getRightWhisker());
+            g_trail.rotate(-robot.getRotation() - (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
         }
     }
 

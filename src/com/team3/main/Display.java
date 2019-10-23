@@ -2,6 +2,7 @@ package com.team3.main;
 
 import com.team3.main.entities.House;
 import com.team3.main.entities.Obstacle;
+import com.team3.main.entities.Robot;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -33,6 +34,15 @@ public class Display {
 
         if (show_obstacles)
             renderObstacles(g, simulationController.getFloorPlan());
+
+        g.rotate(simulationController.getRobot().getRotation() + (Math.PI / 2.0), simulationController.getRobot().getPosition2d().x + Robot.diameter / 2.0, simulationController.getRobot().getPosition2d().y + Robot.diameter / 2.0);
+
+        g.setColor(Color.BLACK);
+        g.fill(simulationController.getRobot().getVacuumBounds());
+        g.fill(simulationController.getRobot().getLeftWhisker());
+        g.fill(simulationController.getRobot().getRightWhisker());
+
+        g.rotate(-simulationController.getRobot().getRotation() - (Math.PI / 2.0), simulationController.getRobot().getPosition2d().x + Robot.diameter / 2.0, simulationController.getRobot().getPosition2d().y + Robot.diameter / 2.0);
 
         g.drawImage(vacuum_image, simulationController.getRobot().getPosition2d().x, simulationController.getRobot().getPosition2d().y, null);
     }
