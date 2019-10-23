@@ -145,6 +145,8 @@ public class Vacuum {
 	}
 	
 	private void spiral() {
+		//newline
+		
 		Vector2f delta_position = new Vector2f(Math.cos(rotation) * base_speed, Math.sin(rotation) * base_speed);
 		if(counter <12) {
 			position.add(delta_position);
