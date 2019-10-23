@@ -46,7 +46,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private BufferedImage dirt_overlay;
 	private Font font;
 	private Robot robot;
-	private House init_floor_plan;
+	private House init_house;
 	private GUIHandler gui_handler;
 	private SimulationController simulationController;
 	private Display display;
@@ -81,7 +81,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		// END GRAPHICS VARS
 
 		// Collision handling for vacuum and obstacles
-		init_floor_plan = new House(WIDTH, HEIGHT);
+		init_house = new House(WIDTH, HEIGHT);
 		Random random = new Random();
 		
 		// Generate random obstacles
@@ -91,9 +91,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 					if (random.nextBoolean()) {
 						int index = 16 * (r / House.grid_size) + (c / House.grid_size);
 						if (random.nextBoolean())
-							init_floor_plan.obstacles.put(index, new Table(c + 9, r + 9));
+							init_house.obstacles.put(index, new Table(c + 9, r + 9));
 						else
-							init_floor_plan.obstacles.put(index, new Chest(c + 9, r + 9));
+							init_house.obstacles.put(index, new Chest(c + 9, r + 9));
 					}
 				}
 			}
@@ -103,11 +103,11 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI + 0.4, 0.25);
 
 		// Create SimulationController
-		simulationController = new SimulationController(init_floor_plan, robot);
+		simulationController = new SimulationController(init_house, robot);
 
 		// Create Display
 		display = new Display();
-		display.clearObstacleDirt(init_floor_plan, dirt_overlay);
+		display.clearObstacleDirt(init_house, dirt_overlay);
 		
 		Color background_color = new Color(31, 133, 222);
 		Color pressed_color = new Color(30, 80, 130);

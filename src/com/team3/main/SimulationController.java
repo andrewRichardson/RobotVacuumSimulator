@@ -17,16 +17,16 @@ public class SimulationController {
     public final static String RANDOM = "Random", SPIRAL = "Spiral", SNAKE = "Snake", WALL_FOLLOW = "Wall Follow";
     public final static String ERASE = "ERASE", TABLE = "TABLE", CHEST = "CHEST";
 
-    private House current_floor_plan;
+    private House current_house;
     private Robot robot;
     private String movement_method = RANDOM;
     private Random random;
-    private int move_steps = 1;
+    private int move_steps = 1, counter = 0;
     private boolean last_click_status = false, first_click = true;
 
-    public SimulationController(House init_floor_plan, Robot robot) {
+    public SimulationController(House init_house, Robot robot) {
         random = new Random();
-        current_floor_plan = init_floor_plan;
+        current_house = init_house;
         this.robot = robot;
     }
 
@@ -44,13 +44,13 @@ public class SimulationController {
             } else {
                 last_click_status = inputHandler.mouseClicked;
 
-                current_floor_plan.obstacles.remove(index);
+                current_house.obstacles.remove(index);
                 switch (draw_brush) {
                     case TABLE:
-                        current_floor_plan.obstacles.put(index, new Table(position.x, position.y));
+                        current_house.obstacles.put(index, new Table(position.x, position.y));
                         break;
                     case CHEST:
-                        current_floor_plan.obstacles.put(index, new Chest(position.x, position.y));
+                        current_house.obstacles.put(index, new Chest(position.x, position.y));
                         break;
                 }
             }
@@ -92,7 +92,7 @@ public class SimulationController {
         Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
         robot.addPosition(delta_position);
 
-        if (CollisionController.collisionDetection(current_floor_plan, robot, collide_obstacles)) {
+        if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
 
             //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
@@ -110,7 +110,25 @@ public class SimulationController {
     }
 
     private void spiral(Graphics2D g_trail, boolean collide_obstacles) {
+        Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
+        if(counter <12) {
+            robot.addPosition(delta_position);
+            counter++;
+        }
+        else {
+            counter = 0;
+            robot.addRotation(1);
+        }
 
+        if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
+            robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+
+            //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
+            //  subtract PI/4 degrees so that the number is between -PI/4 and PI/4
+            double direction = ( random.nextDouble() * (Math.PI / 2) ) - (Math.PI / 4);
+
+            robot.addRotation(direction);
+        }
     }
 
     private void wallFollow(Graphics2D g_trail, boolean collide_obstacles) {
@@ -158,6 +176,6 @@ public class SimulationController {
     }
 
     public House getFloorPlan() {
-        return current_floor_plan;
+        return current_house;
     }
 }
