@@ -31,5 +31,9 @@ public class Vector2f {
 	public Vector2d getVector2d() {
 		return new Vector2d((int)x, (int)y);
 	}
+
+	public String toString() {
+		return "(" + x + ", " + y + ")";
+	}
 	
 }

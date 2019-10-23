@@ -9,14 +9,13 @@ public class Button {
 	public boolean pressed = false;
 	private boolean callback_complete = true;
 	private int timer = 0;
-	private final int PRESSED_DURATION = 10;
+	private final int PRESSED_DURATION = 100;
 	
 	public Button(int x, int y, int width, int height, String name) {
 		bounds = new RoundRectangle2D.Double(x, y, width, height, 5, 5);
 		this.text = name;
 	}
-	
-	
+
 	/**
 	 * @return Rectangle bounds of button
 	 */
