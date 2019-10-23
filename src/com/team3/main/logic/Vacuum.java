@@ -17,6 +17,7 @@ public class Vacuum {
 	private Vector2f position;
 	private double rotation, move_steps;
 	private final double base_speed;
+	private int counter;
 
 	private String movement_method;
 	private Random random;
@@ -34,7 +35,7 @@ public class Vacuum {
 		rotation = init_rotation;
 		base_speed = move_speed;
 		move_steps = 1;
-
+        counter = 0;
 		this.movement_method = movement_method;
 
 		random = new Random();
@@ -144,7 +145,27 @@ public class Vacuum {
 	}
 	
 	private void spiral() {
+		Vector2f delta_position = new Vector2f(Math.cos(rotation) * base_speed, Math.sin(rotation) * base_speed);
+		if(counter <12) {
+			position.add(delta_position);
+			counter++;
+		}
+		else {
+		    counter = 0;
+		    rotation += 1;   
+		}
+		collider.x = position.x;
+		collider.y = position.y;
 		
+		if (collision_detection()) {
+			position.add(new Vector2f(-delta_position.x, -delta_position.y));
+			
+			//  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
+			//  subtract PI/4 degrees so that the number is between -PI/4 and PI/4
+			double direction = ( random.nextDouble() * (Math.PI / 2) ) - (Math.PI / 4);
+
+			rotation += direction;
+		}
 	}
 	
 	private void wallFollow() {
