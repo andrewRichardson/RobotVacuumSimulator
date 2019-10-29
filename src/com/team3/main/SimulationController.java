@@ -23,7 +23,7 @@ public class SimulationController {
     private Random random;
     private int move_steps = 1, counter = 0;
     private boolean last_click_status = false, first_click = true;
-    private double spiralFace;
+//    private double spiralFace;
     private double spiralMove;
 
     public SimulationController(House init_house, Robot robot) {
@@ -117,7 +117,7 @@ public class SimulationController {
     }
 
     private void spiral(Graphics2D g_trail, boolean collide_obstacles) {
-    	 Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()+spiralFace) * (robot.getSpeed()+spiralMove), Math.sin(robot.getRotation()+spiralFace) * (robot.getSpeed()+spiralMove));
+    	 Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * (robot.getSpeed()+spiralMove), Math.sin(robot.getRotation()) * (robot.getSpeed()+spiralMove));
          robot.addPosition(delta_position);
          
          robot.setRotation(robot.getRotation()+Math.PI/180);
@@ -128,8 +128,15 @@ public class SimulationController {
          g_trail.fill(robot.getLeftWhisker());
          g_trail.fill(robot.getRightWhisker());
          g_trail.rotate(-robot.getRotation() - (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
-        }
         
+    
+        if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
+             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+             double direction = Math.PI/4;
+             robot.addRotation(direction);
+             spiralMove = 0;
+        }
+    }
 
 
     private void wallFollow(Graphics2D g_trail, boolean collide_obstacles) {
