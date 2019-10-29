@@ -115,14 +115,18 @@ public class SimulationController {
 
     private void spiral(Graphics2D g_trail, boolean collide_obstacles) {
         Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
-        if(counter <12) {
-            robot.addPosition(delta_position);
-            counter++;
+        robot.addPosition(delta_position);
+        double angle = 0;
+        double radius = 0;
+        
+        
+        while(!CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
+        	robot.addPosition(new Vector2f(delta_position.x, delta_position.y));
+        	angle += Math.PI/18000;
+        	
+        	robot.addRotation(angle);
         }
-        else {
-            counter = 0;
-            robot.addRotation(1);
-        }
+        
 
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
