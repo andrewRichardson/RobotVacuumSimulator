@@ -43,11 +43,11 @@ public class GUIHandler {
 		button_list.put(name, button);
 	}
 	
-	public void update(InputHandler input, int mouse_x, int mouse_y) {
+	public void update(InputHandler input, int mouse_x, int mouse_y, int frame_time) {
 		for (Button button : button_list.values()) {
 			if (input.mouseClicked != last_click_status && button.getBounds().contains(mouse_x, mouse_y) && !button.pressed) {
 				button.pressed = true;
-				button.press();
+				button.press(frame_time);
 			}
 			
 			if (button.pressed) {

@@ -31,7 +31,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private final String title = "Robot Vacuum";
 	private final int WIDTH = 960;
 	private final int HEIGHT = 540;
-	private int fps, ups;
+	private int fps, ups, frame_time;
 	private static boolean running = false;
 	private boolean showFPS = true;
 	private static Thread thread;
@@ -43,7 +43,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private InputHandler input;
 	// END UTIL VARS
 
-	private BufferedImage dirt_overlay;
+	private BufferedImage dirt_overlay, dirt_data;
 	private Font font;
 	private Robot robot;
 	private House init_house;
@@ -78,6 +78,8 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
+
+		dirt_data = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
 		// END GRAPHICS VARS
 
 		// Collision handling for vacuum and obstacles
@@ -100,14 +102,13 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		}
 
 		// Create Vacuum
-		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI + 0.4, 0.25);
+		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 0.25);
 
 		// Create SimulationController
 		simulationController = new SimulationController(init_house, robot);
 
 		// Create Display
 		display = new Display();
-		display.clearObstacleDirt(init_house, dirt_overlay);
 		
 		Color background_color = new Color(31, 133, 222);
 		Color pressed_color = new Color(30, 80, 130);
@@ -180,6 +181,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
 				fps = 0;
+				frame_time = ups;
 				ups = 0;
 			}
 		}
@@ -286,7 +288,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 		display.render(g, simulationController, show_obstacles, dirt_overlay);
 
-		gui_handler.update(input, mouse_x, mouse_y);
+		gui_handler.update(input, mouse_x, mouse_y, frame_time);
 		gui_handler.render(g, run_simulation, draw_mode, input.escape);
 		
 		// CLOSING CODE

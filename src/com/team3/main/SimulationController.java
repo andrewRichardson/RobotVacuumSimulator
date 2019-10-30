@@ -23,14 +23,13 @@ public class SimulationController {
     private Random random;
     private int move_steps = 1, counter = 0;
     private boolean last_click_status = false, first_click = true;
-//    private double spiralFace;
-    private double spiralMove;
+    private double spiral_move;
 
     public SimulationController(House init_house, Robot robot) {
         random = new Random();
         current_house = init_house;
         this.robot = robot;
-        spiralMove = 0;
+        spiral_move = 0;
     }
 
     public void handleDraw(InputHandler inputHandler, int mouse_x, int mouse_y, String draw_brush) {
@@ -117,24 +116,23 @@ public class SimulationController {
     }
 
     private void spiral(Graphics2D g_trail, boolean collide_obstacles) {
-    	 Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * (robot.getSpeed()+spiralMove), Math.sin(robot.getRotation()) * (robot.getSpeed()+spiralMove));
-         robot.addPosition(delta_position);
-         
-         robot.setRotation(robot.getRotation()+Math.PI/180);
-         spiralMove += Math.PI/3600;
-         
-    	 g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
-         g_trail.fill(robot.getVacuumBounds());
-         g_trail.fill(robot.getLeftWhisker());
-         g_trail.fill(robot.getRightWhisker());
-         g_trail.rotate(-robot.getRotation() - (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
-        
-    
+        Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * (robot.getSpeed() + spiral_move), Math.sin(robot.getRotation()) * (robot.getSpeed() + spiral_move));
+        robot.addPosition(delta_position);
+
+        robot.addRotation(Math.PI/180);
+        spiral_move += Math.PI / 3600.0;
+
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
              robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
              double direction = Math.PI/4;
              robot.addRotation(direction);
-             spiralMove = 0;
+             spiral_move = 0;
+        } else {
+            g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
+            g_trail.fill(robot.getVacuumBounds());
+            g_trail.fill(robot.getLeftWhisker());
+            g_trail.fill(robot.getRightWhisker());
+            g_trail.rotate(-robot.getRotation() - (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
         }
     }
 

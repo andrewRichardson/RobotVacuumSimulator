@@ -9,7 +9,7 @@ public class Button {
 	public boolean pressed = false;
 	private boolean callback_complete = true;
 	private int timer = 0;
-	private final int PRESSED_DURATION = 100;
+	private int PRESSED_DURATION = 100;
 	
 	public Button(int x, int y, int width, int height, String name) {
 		bounds = new RoundRectangle2D.Double(x, y, width, height, 5, 5);
@@ -23,8 +23,9 @@ public class Button {
 		return bounds;
 	}
 	
-	public void press() {
+	public void press(int pressed_duration) {
 		callback_complete = false;
+		PRESSED_DURATION = pressed_duration;
 	}
 	
 	public void pressedTimer() {
