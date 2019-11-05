@@ -126,6 +126,7 @@ public class SimulationController {
              robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
              double direction = Math.PI/4;
              robot.addRotation(direction);
+            
              spiral_move = 0;
         } else {
             g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
