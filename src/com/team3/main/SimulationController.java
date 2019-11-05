@@ -14,14 +14,14 @@ import java.util.Random;
 
 public class SimulationController {
 
-    public final static String RANDOM = "Random", SPIRAL = "Spiral", SNAKE = "Snake", WALL_FOLLOW = "Wall Follow";
+    public final static String RANDOM = "Random", SPIRAL = "Spiral", SNAKE = "Snake", WALL_FOLLOW = "Wall Follow", ALL = "All";
     public final static String ERASE = "ERASE", TABLE = "TABLE", CHEST = "CHEST";
 
     private House current_house;
     private Robot robot;
-    private String movement_method = RANDOM;
+    private String movement_method = ALL;
     private Random random;
-    private int move_steps = 1, counter = 0;
+    private int move_steps = 1, total_steps = 0;
     private boolean last_click_status = false, first_click = true;
     private double spiral_move;
 
@@ -67,6 +67,10 @@ public class SimulationController {
         g_trail.setColor(new Color(0, 0, 0, 0));
 
         for (int i = 0; i < move_steps; i++) {
+            if (total_steps++ > 540000) {
+                i = move_steps;
+            }
+
             switch (movement_method) {
                 case "Random":
                     random(g_trail, collide_obstacles);
@@ -123,11 +127,11 @@ public class SimulationController {
         spiral_move += Math.PI / 3600.0;
 
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
-             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
-             double direction = Math.PI/4;
-             robot.addRotation(direction);
+            robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+            double direction = Math.PI/4;
+            robot.addRotation(direction);
             
-             spiral_move = 0;
+            spiral_move = 0;
         } else {
             g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
             g_trail.fill(robot.getVacuumBounds());
@@ -154,6 +158,9 @@ public class SimulationController {
                 movement_method = WALL_FOLLOW;
                 break;
             case WALL_FOLLOW:
+                movement_method = ALL;
+                break;
+            case ALL:
                 movement_method = RANDOM;
                 break;
         }
@@ -184,5 +191,9 @@ public class SimulationController {
 
     public House getFloorPlan() {
         return current_house;
+    }
+
+    public int getTotalSteps() {
+        return total_steps;
     }
 }
