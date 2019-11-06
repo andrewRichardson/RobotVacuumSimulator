@@ -22,6 +22,7 @@ import com.team3.main.math.Vector2f;
 import com.team3.main.ui.Button;
 import com.team3.main.ui.GUIHandler;
 import com.team3.main.util.InputHandler;
+import com.team3.main.util.MathUtil;
 
 public class Main extends Canvas implements Runnable, MouseMotionListener {
 
@@ -54,6 +55,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private boolean run_simulation = false, show_obstacles = true, draw_mode = false, data_mode = false;
 	private int mode_cooldown = 0;
 	private String draw_brush = SimulationController.ERASE;
+
+	private Color average_color;
+	private double average_color_percentage;
 	
 	public Main() {
 		// INIT VARS
@@ -80,6 +84,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		}
 
 		dirt_data = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = dirt_data.createGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.dispose();
 		// END GRAPHICS VARS
 
 		// Collision handling for vacuum and obstacles
@@ -102,7 +110,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		}
 
 		// Create Vacuum
-		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 0.25);
+		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1);
 
 		// Create SimulationController
 		simulationController = new SimulationController(init_house, robot);
@@ -175,10 +183,13 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			fps++;
 
 			if (System.currentTimeMillis() - timer > 1000) {
+				average_color = MathUtil.averageColor(dirt_data, 0, 0, WIDTH, HEIGHT);
+
+				average_color_percentage = (255.0 - average_color.getRed()) / 255.0 * 100.0;
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulationController.getSpeed() : "paused") + " | Seconds elapsed: " + (simulationController.getTotalSteps() / 60) + " sec");
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulationController.getSpeed() : "paused") + " | Seconds elapsed: " + (simulationController.getTotalSteps() / 60) + " sec | Clean: " + String.format("%.2f", average_color_percentage) + "%");
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
@@ -214,7 +225,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 				gui_handler.changeButtonText("run", "▶");
 			}
 
-			simulationController.update(dirt_overlay, show_obstacles);
+			simulationController.update(dirt_overlay, show_obstacles, dirt_data);
 		} else {
 			if(draw_mode){
 				if(mode_cooldown < 100){
@@ -308,7 +319,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		g.setFont(font);
 		// END INIT CODE
 
-		display.render(g, simulationController, show_obstacles, dirt_overlay, data_mode);
+		display.render(g, simulationController, show_obstacles, dirt_overlay, data_mode, dirt_data);
 
 		gui_handler.update(input, mouse_x, mouse_y, frame_time);
 		gui_handler.render(g, run_simulation, draw_mode, input.escape, data_mode);
