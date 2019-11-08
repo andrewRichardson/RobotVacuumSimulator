@@ -116,7 +116,22 @@ public class SimulationController {
     }
 
     private void snake(Graphics2D g_trail, boolean collide_obstacles) {
-
+    	// when Vacuum bumps into something, rotate 90 degrees.
+    	Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());; // unfinished
+    	robot.addPosition(delta_position);
+    	
+    	if (CollisionController.collisionDetection(current_house,  robot,  collide_obstacles)) {
+    		robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+    		double direction = Math.PI/2;
+    		robot.addRotation(direction);
+    		
+    	} else {
+    		g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
+            g_trail.fill(robot.getVacuumBounds());
+            g_trail.fill(robot.getLeftWhisker());
+            g_trail.fill(robot.getRightWhisker());
+            g_trail.rotate(-robot.getRotation() - (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
+    	}
     }
 
     private void spiral(Graphics2D g_trail, boolean collide_obstacles) {
