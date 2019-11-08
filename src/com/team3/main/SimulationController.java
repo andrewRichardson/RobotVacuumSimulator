@@ -135,13 +135,25 @@ public class SimulationController {
         spiral_move += Math.PI / 3600.0;
 
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
+//<<<<<<< HEAD
+             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+             double direction = Math.PI/4.0;
+            
+             robot.addRotation(direction);
+
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+
+
+            robot.addRotation(direction);
+
+            
 
             //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
             //  subtract PI/4 degrees so that the number is between -PI/4 and PI/4
             double direction = ( random.nextDouble() * (Math.PI / 2) ) - (Math.PI / 4);
 
             robot.addRotation(direction);
+
 
             spiral_move = 0;
 
