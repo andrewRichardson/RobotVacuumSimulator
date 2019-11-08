@@ -17,7 +17,10 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import com.team3.main.entities.*;
+import com.team3.main.entities.Chest;
+import com.team3.main.entities.House;
+import com.team3.main.entities.Robot;
+import com.team3.main.entities.Table;
 import com.team3.main.math.Vector2f;
 import com.team3.main.ui.Button;
 import com.team3.main.ui.GUIHandler;

@@ -37,8 +37,6 @@ public class Display {
 
         g.drawImage(dirt_overlay, 0, 0, null);
 
-        //g.drawImage(dirt_data, 0, 0, null);
-
         if (show_obstacles)
             renderObstacles(g, simulationController.getFloorPlan());
 
