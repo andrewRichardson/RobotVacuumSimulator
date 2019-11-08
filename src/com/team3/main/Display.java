@@ -28,10 +28,12 @@ public class Display {
         }
     }
 
-    public void render(Graphics2D g, SimulationController simulationController, boolean show_obstacles, BufferedImage dirt_overlay, boolean show_data) {
+    public void render(Graphics2D g, SimulationController simulationController, boolean show_obstacles, BufferedImage dirt_overlay, boolean show_data, BufferedImage dirt_data) {
         g.drawImage(planks_image, 0, 0, null);
 
         g.drawImage(dirt_overlay, 0, 0, null);
+
+        //g.drawImage(dirt_data, 0, 0, null);
 
         if (show_obstacles)
             renderObstacles(g, simulationController.getFloorPlan());
