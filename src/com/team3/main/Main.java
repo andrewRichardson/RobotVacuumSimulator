@@ -51,8 +51,8 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private SimulationController simulationController;
 	private Display display;
 
-	private boolean run_simulation = false, show_obstacles = true, draw_mode = false;
-	private int draw_mode_cooldown = 0;
+	private boolean run_simulation = false, show_obstacles = true, draw_mode = false, data_mode = false;
+	private int mode_cooldown = 0;
 	private String draw_brush = SimulationController.ERASE;
 	
 	public Main() {
@@ -118,11 +118,13 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		gui_handler = new GUIHandler(background_color, pressed_color, background_color, font_color, 0.75f);
 		gui_handler.addButton(new Button(25, 25, 80, 30, "▶"), "run");
 		gui_handler.addButton(new Button(115, 25, 80, 30, "x1"), "speed");
+		gui_handler.addButton(new Button(115, 25, 80, 30, "⏹"), "stop");
 		gui_handler.addButton(new Button(205, 25, 150, 30, "Toggle Obstacles"), "obstacles");
 		gui_handler.addButton(new Button(365, 25, 150, 30, "Path: " + simulationController.getMovementMethod()), "movement");
 		gui_handler.addButton(new Button(525, 25, 150, 30, "Draw Mode"), "draw");
+        gui_handler.addButton(new Button(685, 25, 150, 30, "Data Mode"), "data");
 
-		gui_handler.addButton(new Button(25, 25, 80, 30, "Escape"), "tools");
+		gui_handler.addButton(new Button(25, 25, 80, 30, "Hold ESC"), "tools");
 		gui_handler.addButton(new Button(25, 25, 150, 30, "Simulation Mode"), "simulation");
 		gui_handler.addButton(new Button(185, 25, 150, 30, "Brush: " + draw_brush), "brush");
 	}
@@ -176,7 +178,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulationController.getSpeed() : "paused"));
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulationController.getSpeed() : "paused") + " | Seconds elapsed: " + (simulationController.getTotalSteps() / 60) + " sec");
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
@@ -199,9 +201,15 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private void update() {
 		input.update();
 		
-		if(run_simulation) {
+		if(run_simulation && simulationController.getTotalSteps() < 540000) {
 			if (gui_handler.getButtons().get("run").isPressed()) {
 				run_simulation = false;
+
+				gui_handler.changeButtonText("run", "▶");
+			}
+			if (gui_handler.getButtons().get("stop").isPressed()) {
+				run_simulation = false;
+				data_mode = true;
 
 				gui_handler.changeButtonText("run", "▶");
 			}
@@ -209,8 +217,8 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			simulationController.update(dirt_overlay, show_obstacles);
 		} else {
 			if(draw_mode){
-				if(draw_mode_cooldown < 100){
-					draw_mode_cooldown++;
+				if(mode_cooldown < 100){
+					mode_cooldown++;
 				} else {
 					if (input.escape) {
 						if (gui_handler.getButtons().get("simulation").isPressed()) {
@@ -236,35 +244,49 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 					} else
 						simulationController.handleDraw(input, mouse_x, mouse_y, draw_brush);
 				}
-			} else {
-				if (gui_handler.getButtons().get("run").isPressed()) {
-					run_simulation = true;
+			} else if (data_mode) {
+                if(mode_cooldown < 100){
+                    mode_cooldown++;
+                } else {
+                    if (gui_handler.getButtons().get("simulation").isPressed()) {
+                        data_mode = false;
+                    }
+                }
+            } else {
+                if (gui_handler.getButtons().get("run").isPressed()) {
+                    run_simulation = true;
 
-					gui_handler.changeButtonText("run", "❚❚");
-				}
+                    gui_handler.changeButtonText("run", "❚❚");
+                }
 
-				if (gui_handler.getButtons().get("draw").isPressed()) {
-					draw_mode = true;
+                if (gui_handler.getButtons().get("draw").isPressed()) {
+                    draw_mode = true;
 
-					draw_mode_cooldown = 0;
-				}
+                    mode_cooldown = 0;
+                }
 
-				if (gui_handler.getButtons().get("speed").isPressed()) {
-					simulationController.updateSpeed();
+                if (gui_handler.getButtons().get("data").isPressed()) {
+                    data_mode = true;
 
-					gui_handler.changeButtonText("speed", "x" + simulationController.getSpeed());
-				}
+                    mode_cooldown = 0;
+                }
 
-				if (gui_handler.getButtons().get("obstacles").isPressed()) {
-					show_obstacles = !show_obstacles;
-				}
+                if (gui_handler.getButtons().get("speed").isPressed()) {
+                    simulationController.updateSpeed();
 
-				if (gui_handler.getButtons().get("movement").isPressed()) {
-					simulationController.updateMovementMethod();
+                    gui_handler.changeButtonText("speed", "x" + simulationController.getSpeed());
+                }
 
-					gui_handler.changeButtonText("movement", "Path: " + simulationController.getMovementMethod());
-				}
-			}
+                if (gui_handler.getButtons().get("obstacles").isPressed()) {
+                    show_obstacles = !show_obstacles;
+                }
+
+                if (gui_handler.getButtons().get("movement").isPressed()) {
+                    simulationController.updateMovementMethod();
+
+                    gui_handler.changeButtonText("movement", "Path: " + simulationController.getMovementMethod());
+                }
+            }
 		}
 	}
 
@@ -286,10 +308,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		g.setFont(font);
 		// END INIT CODE
 
-		display.render(g, simulationController, show_obstacles, dirt_overlay);
+		display.render(g, simulationController, show_obstacles, dirt_overlay, data_mode);
 
 		gui_handler.update(input, mouse_x, mouse_y, frame_time);
-		gui_handler.render(g, run_simulation, draw_mode, input.escape);
+		gui_handler.render(g, run_simulation, draw_mode, input.escape, data_mode);
 		
 		// CLOSING CODE
 		g.dispose();
