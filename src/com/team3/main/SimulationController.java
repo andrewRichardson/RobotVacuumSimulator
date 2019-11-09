@@ -7,6 +7,7 @@ import com.team3.main.entities.Table;
 import com.team3.main.math.Vector2d;
 import com.team3.main.math.Vector2f;
 import com.team3.main.util.InputHandler;
+import com.team3.main.util.MultiplyComposite;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -24,6 +25,9 @@ public class SimulationController {
     private int move_steps = 1, total_steps = 0;
     private boolean last_click_status = false, first_click = true;
     private double spiral_move;
+
+    private Color vacuum_color = new Color(0.1f, 0.1f, 0.1f);
+    private Color whisker_color = new Color(0.4f, 0.4f, 0.4f);
 
     public SimulationController(House init_house, Robot robot) {
         random = new Random();
@@ -59,7 +63,7 @@ public class SimulationController {
         }
     }
 
-    public void update(BufferedImage dirt_image, boolean collide_obstacles) {
+    public void update(BufferedImage dirt_image, boolean collide_obstacles, BufferedImage dirt_data) {
         RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Graphics2D g_trail = dirt_image.createGraphics();
         g_trail.setRenderingHints(rh);
@@ -71,30 +75,36 @@ public class SimulationController {
                 i = move_steps;
             }
 
+            boolean did_collide = false;
             switch (movement_method) {
                 case "Random":
-                    random(g_trail, collide_obstacles);
+                    did_collide = random(collide_obstacles);
                     break;
                 case "Snake":
-                    snake(g_trail, collide_obstacles);
+                    did_collide = snake(collide_obstacles);
                     break;
                 case "Spiral":
-                    spiral(g_trail, collide_obstacles);
+                    did_collide = spiral(collide_obstacles);
                     break;
                 case "Wall Follow":
-                    wallFollow(g_trail, collide_obstacles);
+                    did_collide = wallFollow(collide_obstacles);
                     break;
                 default:
                     System.out.println("Error, bad movement method specified.");
-                    random(g_trail, collide_obstacles);
+                    did_collide = random(collide_obstacles);
                     break;
+            }
+
+            if (!did_collide) {
+                draw_trail(g_trail);
+                collect_dirt(dirt_data);
             }
         }
 
         g_trail.dispose();
     }
 
-    private void random(Graphics2D g_trail, boolean collide_obstacles) {
+    private boolean random(boolean collide_obstacles) {
         Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
         robot.addPosition(delta_position);
 
@@ -106,20 +116,23 @@ public class SimulationController {
             double direction = ( random.nextDouble() * (Math.PI / 2) ) - (Math.PI / 4);
 
             robot.addRotation(direction);
-        } else {
-            g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
-            g_trail.fill(robot.getVacuumBounds());
-            g_trail.fill(robot.getLeftWhisker());
-            g_trail.fill(robot.getRightWhisker());
-            g_trail.rotate(-robot.getRotation() - (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
-        }
-    }
 
+            return true;
+        }
+
+<<<<<<< HEAD
     private void snake(Graphics2D g_trail, boolean collide_obstacles) {
     	
+=======
+        return false;
     }
 
-    private void spiral(Graphics2D g_trail, boolean collide_obstacles) {
+    private boolean snake(boolean collide_obstacles) {
+        return false;
+>>>>>>> f4fc4b88b50e351935dffe4eba3af72f98d4a4d0
+    }
+
+    private boolean spiral(boolean collide_obstacles) {
         Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * (robot.getSpeed() + spiral_move), Math.sin(robot.getRotation()) * (robot.getSpeed() + spiral_move));
         robot.addPosition(delta_position);
 
@@ -127,23 +140,54 @@ public class SimulationController {
         spiral_move += Math.PI / 3600.0;
 
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
-            robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
-            double direction = Math.PI/4;
+             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+
+            //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
+            //  subtract PI/4 degrees so that the number is between -PI/4 and PI/4
+            double direction = ( random.nextDouble() * (Math.PI / 2) ) - (Math.PI / 4);
+
             robot.addRotation(direction);
-            
+
             spiral_move = 0;
-        } else {
-            g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
-            g_trail.fill(robot.getVacuumBounds());
-            g_trail.fill(robot.getLeftWhisker());
-            g_trail.fill(robot.getRightWhisker());
-            g_trail.rotate(-robot.getRotation() - (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
+
+            return true;
         }
+
+        return false;
     }
 
 
-    private void wallFollow(Graphics2D g_trail, boolean collide_obstacles) {
+    private boolean wallFollow(boolean collide_obstacles) {
+        return false;
+    }
 
+    private void draw_trail(Graphics2D g_trail) {
+        g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
+        g_trail.fill(robot.getVacuumBounds());
+        g_trail.fill(robot.getLeftWhisker());
+        g_trail.fill(robot.getRightWhisker());
+        g_trail.rotate(-robot.getRotation() - (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
+    }
+
+    private void collect_dirt(BufferedImage dirt_data) {
+        RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        Graphics2D g = dirt_data.createGraphics();
+        g.setRenderingHints(rh);
+        g.setComposite(MultiplyComposite.Multiply);
+        
+        
+        g.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
+
+        g.setColor(vacuum_color);
+        g.fill(robot.getVacuumBounds());
+
+        g.setColor(whisker_color);
+        g.fill(robot.getLeftWhisker());
+        g.fill(robot.getRightWhisker());
+
+        g.rotate(-robot.getRotation() - (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
+
+        g.dispose();
     }
 
     public void updateMovementMethod() {
