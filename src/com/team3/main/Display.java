@@ -12,7 +12,7 @@ import java.io.IOException;
 
 public class Display {
 
-    private BufferedImage planks_image, chest_image, table_image, table_legs_image, vacuum_image, data_image;
+    private BufferedImage planks_image, chest_image, table_image, table_legs_image, vacuum_image, data_image, floor_a, floor_b, door_a, door_b;
 
     public Display() {
         // Images
@@ -23,6 +23,10 @@ public class Display {
             table_legs_image = ImageIO.read(new File("res/table_legs.png"));
             vacuum_image = ImageIO.read(new File("res/vacuum.png"));
             data_image = ImageIO.read(new File("res/data_collection.png"));
+            floor_a = ImageIO.read(new File("res/floor_a.png"));
+            floor_b = ImageIO.read(new File("res/floor_b.png"));
+            door_a = ImageIO.read(new File("res/door_a.png"));
+            door_b = ImageIO.read(new File("res/door_b.png"));
         } catch(IOException e) {
             e.printStackTrace();
         }
@@ -35,6 +39,14 @@ public class Display {
 
         if (show_obstacles)
             renderObstacles(g, simulationController.getFloorPlan());
+
+        if (simulationController.getFloorPlan().floorPlan == House.FloorPlan.A) {
+            g.drawImage(floor_a, 0, 0, null);
+            g.drawImage(door_a, 0, 0, null);
+        } else {
+            g.drawImage(floor_b, 0, 0, null);
+            g.drawImage(door_b, 0, 0, null);
+        }
 
         g.rotate(simulationController.getRobot().getRotation() + (Math.PI / 2.0), simulationController.getRobot().getPosition2d().x + Robot.diameter / 2.0, simulationController.getRobot().getPosition2d().y + Robot.diameter / 2.0);
 

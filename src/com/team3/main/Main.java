@@ -17,11 +17,15 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import com.team3.main.entities.*;
+import com.team3.main.entities.Chest;
+import com.team3.main.entities.House;
+import com.team3.main.entities.Robot;
+import com.team3.main.entities.Table;
 import com.team3.main.math.Vector2f;
 import com.team3.main.ui.Button;
 import com.team3.main.ui.GUIHandler;
 import com.team3.main.util.InputHandler;
+import com.team3.main.util.MathUtil;
 
 public class Main extends Canvas implements Runnable, MouseMotionListener {
 
@@ -48,12 +52,16 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private Robot robot;
 	private House init_house;
 	private GUIHandler gui_handler;
-	private SimulationController simulationController;
+	private SimulationController simulation_controller;
+	private DataController data_controller;
 	private Display display;
 
 	private boolean run_simulation = false, show_obstacles = true, draw_mode = false, data_mode = false;
 	private int mode_cooldown = 0;
 	private String draw_brush = SimulationController.ERASE;
+
+	private Color average_color;
+	private double average_color_percentage;
 	
 	public Main() {
 		// INIT VARS
@@ -80,12 +88,20 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		}
 
 		dirt_data = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = dirt_data.createGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.dispose();
 		// END GRAPHICS VARS
 
 		// Collision handling for vacuum and obstacles
 		init_house = new House(WIDTH, HEIGHT);
 		Random random = new Random();
-		
+
+		data_controller = new DataController("data/data.json", "data/houses.json", "data/data_pretty.json");
+
+		init_house.id = data_controller.getHouseId(init_house);
+
 		// Generate random obstacles
 		for (int r = 0; r < HEIGHT; r += House.grid_size) {
 			for (int c = 0; c < WIDTH; c += House.grid_size) {
@@ -101,11 +117,13 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			}
 		}
 
+		data_controller.saveHouse(init_house);
+
 		// Create Vacuum
-		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 0.25);
+		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1);
 
 		// Create SimulationController
-		simulationController = new SimulationController(init_house, robot);
+		simulation_controller = new SimulationController(init_house, robot);
 
 		// Create Display
 		display = new Display();
@@ -120,7 +138,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		gui_handler.addButton(new Button(115, 25, 80, 30, "x1"), "speed");
 		gui_handler.addButton(new Button(115, 25, 80, 30, "⏹"), "stop");
 		gui_handler.addButton(new Button(205, 25, 150, 30, "Toggle Obstacles"), "obstacles");
-		gui_handler.addButton(new Button(365, 25, 150, 30, "Path: " + simulationController.getMovementMethod()), "movement");
+		gui_handler.addButton(new Button(365, 25, 150, 30, "Path: " + simulation_controller.getMovementMethod()), "movement");
 		gui_handler.addButton(new Button(525, 25, 150, 30, "Draw Mode"), "draw");
         gui_handler.addButton(new Button(685, 25, 150, 30, "Data Mode"), "data");
 
@@ -175,10 +193,13 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			fps++;
 
 			if (System.currentTimeMillis() - timer > 1000) {
+				average_color = MathUtil.averageColor(dirt_data, 0, 0, WIDTH, HEIGHT);
+
+				average_color_percentage = (255.0 - average_color.getRed()) / 255.0 * 100.0;
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulationController.getSpeed() : "paused") + " | Seconds elapsed: " + (simulationController.getTotalSteps() / 60) + " sec");
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() : "paused") + " | Seconds elapsed: " + (simulation_controller.getTotalSteps() / 60) + " sec | Clean: " + String.format("%.2f", average_color_percentage) + "%");
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
@@ -201,7 +222,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private void update() {
 		input.update();
 		
-		if(run_simulation && simulationController.getTotalSteps() < 540000) {
+		if(run_simulation && simulation_controller.getTotalSteps() < 540000) {
 			if (gui_handler.getButtons().get("run").isPressed()) {
 				run_simulation = false;
 
@@ -214,7 +235,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 				gui_handler.changeButtonText("run", "▶");
 			}
 
-			simulationController.update(dirt_overlay, show_obstacles);
+			simulation_controller.update(dirt_overlay, show_obstacles, dirt_data);
 		} else {
 			if(draw_mode){
 				if(mode_cooldown < 100){
@@ -242,7 +263,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 							gui_handler.changeButtonText("brush", "Brush: " + draw_brush);
 						}
 					} else
-						simulationController.handleDraw(input, mouse_x, mouse_y, draw_brush);
+						simulation_controller.handleDraw(input, mouse_x, mouse_y, draw_brush);
 				}
 			} else if (data_mode) {
                 if(mode_cooldown < 100){
@@ -272,9 +293,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
                 }
 
                 if (gui_handler.getButtons().get("speed").isPressed()) {
-                    simulationController.updateSpeed();
+                    simulation_controller.updateSpeed();
 
-                    gui_handler.changeButtonText("speed", "x" + simulationController.getSpeed());
+                    gui_handler.changeButtonText("speed", "x" + simulation_controller.getSpeed());
                 }
 
                 if (gui_handler.getButtons().get("obstacles").isPressed()) {
@@ -282,9 +303,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
                 }
 
                 if (gui_handler.getButtons().get("movement").isPressed()) {
-                    simulationController.updateMovementMethod();
+                    simulation_controller.updateMovementMethod();
 
-                    gui_handler.changeButtonText("movement", "Path: " + simulationController.getMovementMethod());
+                    gui_handler.changeButtonText("movement", "Path: " + simulation_controller.getMovementMethod());
                 }
             }
 		}
@@ -308,7 +329,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		g.setFont(font);
 		// END INIT CODE
 
-		display.render(g, simulationController, show_obstacles, dirt_overlay, data_mode);
+		display.render(g, simulation_controller, show_obstacles, dirt_overlay, data_mode);
 
 		gui_handler.update(input, mouse_x, mouse_y, frame_time);
 		gui_handler.render(g, run_simulation, draw_mode, input.escape, data_mode);
