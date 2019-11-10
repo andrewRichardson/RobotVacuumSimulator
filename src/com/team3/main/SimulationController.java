@@ -23,7 +23,7 @@ public class SimulationController {
     private String movement_method = ALL;
     private Random random;
     private int move_steps = 1, total_steps = 0;
-    private boolean last_click_status = false, first_click = true;
+    private boolean last_click_status = false, first_click = true, reset_complete = false;
     private double spiral_move;
 
     private Color vacuum_color = new Color(0.1f, 0.1f, 0.1f);
@@ -71,33 +71,38 @@ public class SimulationController {
         g_trail.setColor(new Color(0, 0, 0, 0));
 
         for (int i = 0; i < move_steps; i++) {
-            if (total_steps++ > 540000) {
+            if (reset_complete) {
+                if (total_steps++ > Robot.BATTERY_LIFE) {
+                    i = move_steps;
+                }
+
+                boolean did_collide = false;
+                switch (movement_method) {
+                    case "Random":
+                        did_collide = random(collide_obstacles);
+                        break;
+                    case "Snake":
+                        did_collide = snake(collide_obstacles);
+                        break;
+                    case "Spiral":
+                        did_collide = spiral(collide_obstacles);
+                        break;
+                    case "Wall Follow":
+                        did_collide = wallFollow(collide_obstacles);
+                        break;
+                    default:
+                        System.out.println("Error, bad movement method specified.");
+                        did_collide = random(collide_obstacles);
+                        break;
+                }
+
+                if (!did_collide) {
+                    draw_trail(g_trail);
+                    collect_dirt(dirt_data);
+                }
+            } else {
+                reset_complete = true;
                 i = move_steps;
-            }
-
-            boolean did_collide = false;
-            switch (movement_method) {
-                case "Random":
-                    did_collide = random(collide_obstacles);
-                    break;
-                case "Snake":
-                    did_collide = snake(collide_obstacles);
-                    break;
-                case "Spiral":
-                    did_collide = spiral(collide_obstacles);
-                    break;
-                case "Wall Follow":
-                    did_collide = wallFollow(collide_obstacles);
-                    break;
-                default:
-                    System.out.println("Error, bad movement method specified.");
-                    did_collide = random(collide_obstacles);
-                    break;
-            }
-
-            if (!did_collide) {
-                draw_trail(g_trail);
-                collect_dirt(dirt_data);
             }
         }
 
@@ -121,6 +126,7 @@ public class SimulationController {
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 private void snake(Graphics2D g_trail, boolean collide_obstacles) {
 	// when Vacuum bumps into something, rotate 90 degrees.
 	Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());; // unfinished
@@ -140,12 +146,13 @@ private void snake(Graphics2D g_trail, boolean collide_obstacles) {
 	}
 
 =======
+=======
+>>>>>>> 3e10a98a90dee6c2da60aa85ff067264c0784fdc
         return false;
     }
 
     private boolean snake(boolean collide_obstacles) {
         return false;
->>>>>>> f4fc4b88b50e351935dffe4eba3af72f98d4a4d0
     }
 
     private boolean spiral(boolean collide_obstacles) {
@@ -156,7 +163,26 @@ private void snake(Graphics2D g_trail, boolean collide_obstacles) {
         spiral_move += Math.PI / 3600.0;
 
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
+
+
+
              robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+             
+            
+            //robot.addRotation(direction);
+
+            robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+
+
+            //robot.addRotation(direction);
+
+            
+
+             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+
+            robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+
+
 
             //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
             //  subtract PI/4 degrees so that the number is between -PI/4 and PI/4
@@ -190,8 +216,8 @@ private void snake(Graphics2D g_trail, boolean collide_obstacles) {
         Graphics2D g = dirt_data.createGraphics();
         g.setRenderingHints(rh);
         g.setComposite(MultiplyComposite.Multiply);
-        
-        
+
+
         g.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
 
         g.setColor(vacuum_color);
@@ -210,20 +236,32 @@ private void snake(Graphics2D g_trail, boolean collide_obstacles) {
         switch (movement_method) {
             case RANDOM:
                 movement_method = SNAKE;
+                total_steps = 0;
                 break;
             case SNAKE:
                 movement_method = SPIRAL;
+                total_steps = 0;
                 break;
             case SPIRAL:
                 movement_method = WALL_FOLLOW;
+                total_steps = 0;
                 break;
             case WALL_FOLLOW:
                 movement_method = ALL;
+                total_steps = 0;
                 break;
             case ALL:
                 movement_method = RANDOM;
+                total_steps = 0;
                 break;
         }
+    }
+
+    public void reset(Robot new_robot) {
+        total_steps = 0;
+        spiral_move = 0;
+        robot = new_robot;
+        reset_complete = false;
     }
 
     public void updateSpeed() {

@@ -20,6 +20,7 @@ public class Robot {
 	private final Vector2f left_whisker_offset = new Vector2f(-0.5, 2);
 	private final Vector2f right_whisker_offset = new Vector2f(17.5, 2);
 	public static final int diameter = 24;
+	public static final double BATTERY_LIFE = 150 * 60 * 6;
 
 	public Robot(Vector2f init_position, double init_rotation, double move_speed) {
 		position = init_position;
