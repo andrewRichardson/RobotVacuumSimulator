@@ -125,33 +125,21 @@ public class SimulationController {
             return true;
         }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-private void snake(Graphics2D g_trail, boolean collide_obstacles) {
-	// when Vacuum bumps into something, rotate 90 degrees.
-	Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());; // unfinished
-	robot.addPosition(delta_position);
-	
-	if (CollisionController.collisionDetection(current_house,  robot,  collide_obstacles)) {
-		robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
-		double direction = Math.PI/2;
-		robot.addRotation(direction);
-		
-	} else {
-		g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
-        g_trail.fill(robot.getVacuumBounds());
-        g_trail.fill(robot.getLeftWhisker());
-        g_trail.fill(robot.getRightWhisker());
-        g_trail.rotate(-robot.getRotation() - (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
-	}
-
-=======
-=======
->>>>>>> 3e10a98a90dee6c2da60aa85ff067264c0784fdc
         return false;
     }
 
     private boolean snake(boolean collide_obstacles) {
+        // when Vacuum bumps into something, rotate 90 degrees.
+        Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());; // unfinished
+        robot.addPosition(delta_position);
+
+        if (CollisionController.collisionDetection(current_house,  robot,  collide_obstacles)) {
+            robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+            double direction = Math.PI/2;
+            robot.addRotation(direction);
+
+            return true;
+        }
         return false;
     }
 
@@ -163,26 +151,7 @@ private void snake(Graphics2D g_trail, boolean collide_obstacles) {
         spiral_move += Math.PI / 3600.0;
 
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
-
-
-
-             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
-             
-            
-            //robot.addRotation(direction);
-
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
-
-
-            //robot.addRotation(direction);
-
-            
-
-             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
-
-            robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
-
-
 
             //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
             //  subtract PI/4 degrees so that the number is between -PI/4 and PI/4
