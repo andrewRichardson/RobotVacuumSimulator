@@ -28,7 +28,7 @@ public class DataController {
     private List<Integer> b_ids, a_ids, run_ids;
     private List<House> houses;
     private List<DataEntry> run_list;
-    private final String VERSION = "v1";
+    private final String VERSION = "v2";
 
     public DataController(String data_path, String id_path, String data_pretty_path, String run_path){
         data = new ArrayList<String>();
