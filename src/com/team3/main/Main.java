@@ -6,13 +6,14 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -24,11 +25,11 @@ import com.team3.main.ui.GUIHandler;
 import com.team3.main.util.InputHandler;
 import com.team3.main.util.MathUtil;
 
-public class Main extends Canvas implements Runnable, MouseMotionListener {
+public class Main extends Canvas implements Runnable, MouseMotionListener, ActionListener {
 
 	// INIT VARS
 	private static final long serialVersionUID = 1L;
-	private static JFrame frame, data_frame;
+	private static JFrame frame, data_frame, house_frame;
 	private final String title = "Robot Vacuum";
 	private final int WIDTH = 960;
 	private final int HEIGHT = 540;
@@ -57,7 +58,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private final String[] COLUMN_HEADERS = {"Run Id", "House Id", "Random Eff %", "Snake Eff %", "Spiral Eff %", "Wall Follow Eff %"};
 	private Object[][] run_data;
 
-	private boolean run_simulation = false, show_obstacles = true, draw_mode = false, data_mode = false, has_started = false, all = true;
+	private boolean run_simulation = false, show_obstacles = true, draw_mode = false, data_mode = false, has_started = false, all = true, house_changed = false;
 	private int mode_cooldown = 0;
 	private String draw_brush = SimulationController.ERASE;
 
@@ -96,26 +97,12 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		// END GRAPHICS VARS
 
 		// Collision handling for vacuum and obstacles
-		init_house = new House(WIDTH, HEIGHT);
-		Random random = new Random();
-
 		data_controller = new DataController("data/data.json", "data/houses.json", "data/data_pretty.json", "data/runs.json");
 
-		init_house.id = data_controller.getHouseId(init_house);
-
-		// Generate random obstacles
-		for (int r = 0; r < HEIGHT; r += House.grid_size) {
-			for (int c = 0; c < WIDTH; c += House.grid_size) {
-				if ((r < HEIGHT / 2 - Robot.diameter || r > HEIGHT / 2 + Robot.diameter) && (c < WIDTH / 2 - Robot.diameter || c > WIDTH / 2 + Robot.diameter)) {
-					if (random.nextBoolean()) {
-						int index = 16 * (r / House.grid_size) + (c / House.grid_size);
-						if (random.nextBoolean())
-							init_house.obstacles.put(index, new Table(c + 9, r + 9));
-						else
-							init_house.obstacles.put(index, new Chest(c + 9, r + 9));
-					}
-				}
-			}
+		init_house = data_controller.loadHouse("A-0");
+		if (init_house == null) {
+			init_house = new House(WIDTH, HEIGHT);
+			init_house.id = data_controller.getHouseId(init_house);
 		}
 
 		// Create Vacuum
@@ -129,7 +116,6 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		
 		Color background_color = new Color(31, 133, 222);
 		Color pressed_color = new Color(30, 80, 130);
-		//Color outline_color = new Color(38, 96, 145);
 		Color font_color = new Color(241, 241, 241);
 		
 		gui_handler = new GUIHandler(background_color, pressed_color, background_color, font_color, 0.75f);
@@ -138,8 +124,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		gui_handler.addButton(new Button(115, 25, 80, 30, "⏹"), "stop");
 		gui_handler.addButton(new Button(205, 25, 150, 30, "Toggle Obstacles"), "obstacles");
 		gui_handler.addButton(new Button(365, 25, 150, 30, "Path: " + simulation_controller.getMovementMethod()), "movement");
-		gui_handler.addButton(new Button(525, 25, 150, 30, "Draw Mode"), "draw");
-        gui_handler.addButton(new Button(685, 25, 150, 30, "Data Mode"), "data");
+		gui_handler.addButton(new Button(525, 25, 120, 30, "Draw Mode"), "draw");
+        gui_handler.addButton(new Button(655, 25, 120, 30, "Data Mode"), "data");
+		gui_handler.addButton(new Button(785, 25, 120, 30, "Select House"), "house");
 
 		gui_handler.addButton(new Button(25, 25, 80, 30, "Hold ESC"), "tools");
 		gui_handler.addButton(new Button(25, 25, 150, 30, "Simulation Mode"), "simulation");
@@ -198,7 +185,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() + " | Method: " + simulation_controller.getMovementMethod() : "paused") + " | Seconds elapsed: " + (simulation_controller.getTotalSteps() / 60) + " sec | Clean: " + String.format("%.2f", average_color_percentage) + "%");
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() + " | Method: " + simulation_controller.getMovementMethod() : "paused") + " | Seconds elapsed: " + (simulation_controller.getTotalSteps() / 6) + " sec | Clean: " + String.format("%.2f", average_color_percentage) + "%");
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
@@ -239,6 +226,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 					data_controller.saveData(simulation_controller.getFloorPlan().id, random_p, snake_p, spiral_p, wall_follow_p);
 
 					fullReset();
+					showData();
 
 					gui_handler.changeButtonText("run", "▶");
 				}
@@ -256,6 +244,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 					data_controller.saveData(simulation_controller.getFloorPlan().id, random_p, snake_p, spiral_p, wall_follow_p);
 					fullReset();
+					showData();
 
 					gui_handler.changeButtonText("run", "▶");
 				}
@@ -287,7 +276,8 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 							gui_handler.changeButtonText("brush", "Brush: " + draw_brush);
 						}
 					} else
-						simulation_controller.handleDraw(input, mouse_x, mouse_y, draw_brush);
+						if (simulation_controller.handleDraw(input, mouse_x, mouse_y, draw_brush))
+							house_changed = true;
 				}
 			} else if (data_mode) {
                 if(mode_cooldown < 100){
@@ -295,7 +285,6 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
                 } else {
                     if (gui_handler.getButtons().get("simulation").isPressed()) {
                         data_mode = false;
-                        data_frame.setVisible(false);
                     }
                 }
             } else if (has_started) {
@@ -315,6 +304,8 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 				if (gui_handler.getButtons().get("run").isPressed()) {
 					run_simulation = true;
 					has_started = true;
+					if (house_changed)
+						init_house.id = data_controller.getHouseId(init_house);
 					data_controller.saveHouse(init_house);
 
 					if (simulation_controller.getMovementMethod() == SimulationController.ALL)
@@ -352,6 +343,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 					simulation_controller.updateMovementMethod();
 
 					gui_handler.changeButtonText("movement", "Path: " + simulation_controller.getMovementMethod());
+				}
+
+				if (gui_handler.getButtons().get("house").isPressed()) {
+					showHousePicker();
 				}
 			}
 		}
@@ -418,6 +413,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	}
 
 	private void fullReset() {
+		house_changed = false;
 		has_started = false;
 		all = true;
 
@@ -436,17 +432,17 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 			run_data[i][0] = entry.getRunId();
 			run_data[i][1] = entry.getHouseId();
 			run_data[i][2] = String.format("%.2f", entry.getRandom()) + "%";
-			run_data[i][3] = String.format("%.2f", entry.getSnake()) + "%";;
-			run_data[i][4] = String.format("%.2f", entry.getSpiral()) + "%";;
-			run_data[i][5] = String.format("%.2f", entry.getWallFollow()) + "%";;
+			run_data[i][3] = String.format("%.2f", entry.getSnake()) + "%";
+			run_data[i][4] = String.format("%.2f", entry.getSpiral()) + "%";
+			run_data[i][5] = String.format("%.2f", entry.getWallFollow()) + "%";
 		}
 
-		data_table = new JTable(run_data, COLUMN_HEADERS){public boolean isCellEditable(int rowIndex, int colIndex) {return false;}};;
+		data_table = new JTable(run_data, COLUMN_HEADERS){public boolean isCellEditable(int rowIndex, int colIndex) {return false;}};
 
 		JScrollPane container = new JScrollPane(data_table);
 		data_table.setFillsViewportHeight(true);
 
-		container.setSize(550, 400);
+		container.setSize(700, 400);
 		container.setLocation(185, 25);
 
 		data_frame = new JFrame("Data");
@@ -460,6 +456,46 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		data_frame.requestFocus();
 
 		data_frame.setVisible(true);
+	}
+
+	private void showHousePicker() {
+		String[] houses = new String[data_controller.getHouseData().size()];
+		for (int i = 0; i < houses.length; i++){
+			houses[i] = data_controller.getHouseData().get(i);
+		}
+		JComboBox house_selector = new JComboBox(houses);
+		house_selector.setSelectedIndex(0);
+		house_selector.addActionListener(this);
+
+		JPanel panel = new JPanel();
+		panel.setPreferredSize(new Dimension(80, 400));
+		panel.add(house_selector);
+
+		house_frame = new JFrame("House Selector");
+
+		house_frame.setResizable(false);
+		house_frame.setPreferredSize(new Dimension(300, 100));
+		house_frame.add(panel);
+		house_frame.pack();
+		house_frame.setLocationRelativeTo(null);
+		house_frame.toFront();
+		house_frame.setState(JFrame.NORMAL);
+		house_frame.requestFocus();
+
+		house_frame.setVisible(true);
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		JComboBox cb = (JComboBox)e.getSource();
+		String house_id = (String)cb.getSelectedItem();
+
+		// Select house
+		House house = data_controller.loadHouse(house_id);
+		if (house != null) {
+			simulation_controller.reset(new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1), house);
+
+			reset();
+		}
 	}
 	
 	public int getMouseX(){

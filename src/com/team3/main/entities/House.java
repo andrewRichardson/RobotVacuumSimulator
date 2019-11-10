@@ -28,7 +28,16 @@ public class House {
 		
 		init_bounds();
 	}
-	
+
+	public House(int width, int height, FloorPlan floorPlan) {
+		this.width = width;
+		this.height = height;
+		obstacles = new HashMap<Integer, Obstacle>();
+		this.floorPlan = floorPlan;
+
+		init_bounds();
+	}
+
 	public House(int width, int height) {
 		this.width = width;
 		this.height = height;
@@ -37,7 +46,7 @@ public class House {
 		
 		init_bounds();
 	}
-	
+
 	private void init_bounds() {
 		if (floorPlan == FloorPlan.A) {
 			walls = new Obstacle[]{

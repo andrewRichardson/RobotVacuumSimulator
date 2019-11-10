@@ -36,7 +36,8 @@ public class SimulationController {
         spiral_move = 0;
     }
 
-    public void handleDraw(InputHandler inputHandler, int mouse_x, int mouse_y, String draw_brush) {
+    public boolean handleDraw(InputHandler inputHandler, int mouse_x, int mouse_y, String draw_brush) {
+        boolean drawing = false;
         int grid_x = (int)Math.floor((double)mouse_x / (double) House.grid_size);
         int grid_y = (int)Math.floor((double)mouse_y / (double) House.grid_size);
 
@@ -44,6 +45,7 @@ public class SimulationController {
         Vector2d position = new Vector2d(grid_x * House.grid_size + 9, grid_y * House.grid_size + 9);
 
         if (inputHandler.mouseClicked != last_click_status) {
+            drawing = true;
             if (first_click) {
                 first_click = false;
                 last_click_status = inputHandler.mouseClicked;
@@ -61,6 +63,7 @@ public class SimulationController {
                 }
             }
         }
+        return drawing;
     }
 
     public void update(BufferedImage dirt_image, boolean collide_obstacles, BufferedImage dirt_data) {
@@ -231,6 +234,11 @@ public class SimulationController {
         spiral_move = 0;
         robot = new_robot;
         reset_complete = false;
+    }
+
+    public void reset(Robot new_robot, House new_house) {
+        current_house = new_house;
+        reset(new_robot);
     }
 
     public void updateSpeed() {

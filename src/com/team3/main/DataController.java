@@ -248,6 +248,28 @@ public class DataController {
         return run_list;
     }
 
+    public List<String> getHouseData() {
+        List<String> house_ids = new ArrayList<String>();
+        for (String id : a_id_string) {
+            house_ids.add(id);
+        }
+        for (String id : b_id_string) {
+            house_ids.add(id);
+        }
+
+        return house_ids;
+    }
+
+    public House loadHouse(String house_id) {
+        for (House house : houses) {
+            if (house.id.equals(house_id)) {
+                return house;
+            }
+        }
+
+        return null;
+    }
+
     private class ObstacleAdapter implements JsonSerializer<Obstacle>, JsonDeserializer<Obstacle>{
 
         private static final String CLASSNAME = "CLASSNAME";
