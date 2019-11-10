@@ -1,10 +1,12 @@
 package com.team3.main;
 
+import com.team3.main.entities.DataEntry;
 import com.team3.main.entities.House;
 import com.team3.main.entities.Obstacle;
 import com.team3.main.entities.Robot;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -32,12 +34,10 @@ public class Display {
         }
     }
 
-    public void render(Graphics2D g, SimulationController simulationController, boolean show_obstacles, BufferedImage dirt_overlay, boolean show_data) {
+    public void render(Graphics2D g, SimulationController simulationController, DataController dataController, boolean show_obstacles, BufferedImage dirt_overlay) {
         g.drawImage(planks_image, 0, 0, null);
 
         g.drawImage(dirt_overlay, 0, 0, null);
-
-        //g.drawImage(dirt_data, 0, 0, null);
 
         if (show_obstacles)
             renderObstacles(g, simulationController.getFloorPlan());
@@ -60,9 +60,6 @@ public class Display {
         g.rotate(-simulationController.getRobot().getRotation() - (Math.PI / 2.0), simulationController.getRobot().getPosition2d().x + Robot.diameter / 2.0, simulationController.getRobot().getPosition2d().y + Robot.diameter / 2.0);
 
         g.drawImage(vacuum_image, simulationController.getRobot().getPosition2d().x, simulationController.getRobot().getPosition2d().y, null);
-
-        if (show_data)
-            g.drawImage(data_image, 185, 25, null);
     }
 
     private void renderObstacles(Graphics2D g, House house) {

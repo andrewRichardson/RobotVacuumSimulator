@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import com.team3.main.entities.*;
 import com.team3.main.math.Vector2f;
@@ -28,7 +28,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 	// INIT VARS
 	private static final long serialVersionUID = 1L;
-	private static JFrame frame;
+	private static JFrame frame, data_frame;
 	private final String title = "Robot Vacuum";
 	private final int WIDTH = 960;
 	private final int HEIGHT = 540;
@@ -53,12 +53,16 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private DataController data_controller;
 	private Display display;
 
-	private boolean run_simulation = false, show_obstacles = true, draw_mode = false, data_mode = false;
+	private JTable data_table;
+	private final String[] COLUMN_HEADERS = {"Run Id", "House Id", "Random Eff %", "Snake Eff %", "Spiral Eff %", "Wall Follow Eff %"};
+	private Object[][] run_data;
+
+	private boolean run_simulation = false, show_obstacles = true, draw_mode = false, data_mode = false, has_started = false, all = true;
 	private int mode_cooldown = 0;
 	private String draw_brush = SimulationController.ERASE;
 
 	private Color average_color;
-	private double average_color_percentage;
+	private double average_color_percentage, random_p, snake_p, spiral_p, wall_follow_p;
 	
 	public Main() {
 		// INIT VARS
@@ -95,7 +99,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		init_house = new House(WIDTH, HEIGHT);
 		Random random = new Random();
 
-		data_controller = new DataController("data/data.json", "data/houses.json", "data/data_pretty.json");
+		data_controller = new DataController("data/data.json", "data/houses.json", "data/data_pretty.json", "data/runs.json");
 
 		init_house.id = data_controller.getHouseId(init_house);
 
@@ -113,8 +117,6 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 				}
 			}
 		}
-
-		data_controller.saveHouse(init_house);
 
 		// Create Vacuum
 		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1);
@@ -196,7 +198,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() : "paused") + " | Seconds elapsed: " + (simulation_controller.getTotalSteps() / 60) + " sec | Clean: " + String.format("%.2f", average_color_percentage) + "%");
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() + " | Method: " + simulation_controller.getMovementMethod() : "paused") + " | Seconds elapsed: " + (simulation_controller.getTotalSteps() / 60) + " sec | Clean: " + String.format("%.2f", average_color_percentage) + "%");
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
@@ -219,20 +221,45 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 	private void update() {
 		input.update();
 		
-		if(run_simulation && simulation_controller.getTotalSteps() < 540000) {
-			if (gui_handler.getButtons().get("run").isPressed()) {
-				run_simulation = false;
+		if(run_simulation) {
+			if (simulation_controller.getTotalSteps() < Robot.BATTERY_LIFE) {
+				if (gui_handler.getButtons().get("run").isPressed()) {
+					run_simulation = false;
 
-				gui_handler.changeButtonText("run", "▶");
+					gui_handler.changeButtonText("run", "▶");
+				}
+				if (gui_handler.getButtons().get("stop").isPressed()) {
+					run_simulation = false;
+					data_mode = true;
+
+					setPercentages();
+					reset();
+					simulation_controller.reset(new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1));
+
+					data_controller.saveData(simulation_controller.getFloorPlan().id, random_p, snake_p, spiral_p, wall_follow_p);
+
+					fullReset();
+
+					gui_handler.changeButtonText("run", "▶");
+				}
+
+				simulation_controller.update(dirt_overlay, show_obstacles, dirt_data);
+			} else {
+				setPercentages();
+				reset();
+				simulation_controller.reset(new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1));
+				if (all && (random_p == 0 || snake_p == 0 || spiral_p == 0 || wall_follow_p == 0))
+					simulation_controller.updateMovementMethod();
+				else {
+					run_simulation = false;
+					data_mode = true;
+
+					data_controller.saveData(simulation_controller.getFloorPlan().id, random_p, snake_p, spiral_p, wall_follow_p);
+					fullReset();
+
+					gui_handler.changeButtonText("run", "▶");
+				}
 			}
-			if (gui_handler.getButtons().get("stop").isPressed()) {
-				run_simulation = false;
-				data_mode = true;
-
-				gui_handler.changeButtonText("run", "▶");
-			}
-
-			simulation_controller.update(dirt_overlay, show_obstacles, dirt_data);
 		} else {
 			if(draw_mode){
 				if(mode_cooldown < 100){
@@ -268,43 +295,65 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
                 } else {
                     if (gui_handler.getButtons().get("simulation").isPressed()) {
                         data_mode = false;
+                        data_frame.setVisible(false);
                     }
                 }
+            } else if (has_started) {
+				if (gui_handler.getButtons().get("run").isPressed()) {
+					run_simulation = true;
+					has_started = true;
+
+					gui_handler.changeButtonText("run", "❚❚");
+				}
+
+				if (gui_handler.getButtons().get("speed").isPressed()) {
+					simulation_controller.updateSpeed();
+
+					gui_handler.changeButtonText("speed", "x" + simulation_controller.getSpeed());
+				}
             } else {
-                if (gui_handler.getButtons().get("run").isPressed()) {
-                    run_simulation = true;
+				if (gui_handler.getButtons().get("run").isPressed()) {
+					run_simulation = true;
+					has_started = true;
+					data_controller.saveHouse(init_house);
 
-                    gui_handler.changeButtonText("run", "❚❚");
-                }
+					if (simulation_controller.getMovementMethod() == SimulationController.ALL)
+						simulation_controller.updateMovementMethod();
+					else
+						all = false;
 
-                if (gui_handler.getButtons().get("draw").isPressed()) {
-                    draw_mode = true;
+					gui_handler.changeButtonText("run", "❚❚");
+				}
 
-                    mode_cooldown = 0;
-                }
+				if (gui_handler.getButtons().get("draw").isPressed()) {
+					draw_mode = true;
 
-                if (gui_handler.getButtons().get("data").isPressed()) {
-                    data_mode = true;
+					mode_cooldown = 0;
+				}
 
-                    mode_cooldown = 0;
-                }
+				if (gui_handler.getButtons().get("data").isPressed()) {
+					data_mode = true;
+					showData();
 
-                if (gui_handler.getButtons().get("speed").isPressed()) {
-                    simulation_controller.updateSpeed();
+					mode_cooldown = 0;
+				}
 
-                    gui_handler.changeButtonText("speed", "x" + simulation_controller.getSpeed());
-                }
+				if (gui_handler.getButtons().get("speed").isPressed()) {
+					simulation_controller.updateSpeed();
 
-                if (gui_handler.getButtons().get("obstacles").isPressed()) {
-                    show_obstacles = !show_obstacles;
-                }
+					gui_handler.changeButtonText("speed", "x" + simulation_controller.getSpeed());
+				}
 
-                if (gui_handler.getButtons().get("movement").isPressed()) {
-                    simulation_controller.updateMovementMethod();
+				if (gui_handler.getButtons().get("obstacles").isPressed()) {
+					show_obstacles = !show_obstacles;
+				}
 
-                    gui_handler.changeButtonText("movement", "Path: " + simulation_controller.getMovementMethod());
-                }
-            }
+				if (gui_handler.getButtons().get("movement").isPressed()) {
+					simulation_controller.updateMovementMethod();
+
+					gui_handler.changeButtonText("movement", "Path: " + simulation_controller.getMovementMethod());
+				}
+			}
 		}
 	}
 
@@ -326,15 +375,91 @@ public class Main extends Canvas implements Runnable, MouseMotionListener {
 		g.setFont(font);
 		// END INIT CODE
 
-		display.render(g, simulation_controller, show_obstacles, dirt_overlay, data_mode);
+		display.render(g, simulation_controller, data_controller, show_obstacles, dirt_overlay);
 
 		gui_handler.update(input, mouse_x, mouse_y, frame_time);
-		gui_handler.render(g, run_simulation, draw_mode, input.escape, data_mode);
+		gui_handler.render(g, run_simulation, draw_mode, input.escape, data_mode, has_started);
 		
 		// CLOSING CODE
 		g.dispose();
 		bs.show();
 		// END CLOSING CODE
+	}
+
+	private void setPercentages() {
+		switch (simulation_controller.getMovementMethod()) {
+			case SimulationController.RANDOM:
+				random_p = average_color_percentage;
+				break;
+			case SimulationController.SNAKE:
+				snake_p = average_color_percentage;
+				break;
+			case SimulationController.SPIRAL:
+				spiral_p = average_color_percentage;
+				break;
+			case SimulationController.WALL_FOLLOW:
+				wall_follow_p = average_color_percentage;
+				break;
+		}
+	}
+
+	private void reset() {
+		try {
+			dirt_overlay = ImageIO.read(new File("res/dirt.png"));
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+
+		dirt_data = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = dirt_data.createGraphics();
+		g.setColor(Color.WHITE);
+		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.dispose();
+	}
+
+	private void fullReset() {
+		has_started = false;
+		all = true;
+
+		random_p = 0;
+		snake_p = 0;
+		spiral_p = 0;
+		wall_follow_p = 0;
+	}
+
+	private void showData() {
+		int length = data_controller.getRunData().size();
+		run_data = new Object[length][6];
+		DataEntry entry;
+		for (int i = 0; i < length; i++) {
+			entry = data_controller.getRunData().get(i);
+			run_data[i][0] = entry.getRunId();
+			run_data[i][1] = entry.getHouseId();
+			run_data[i][2] = String.format("%.2f", entry.getRandom()) + "%";
+			run_data[i][3] = String.format("%.2f", entry.getSnake()) + "%";;
+			run_data[i][4] = String.format("%.2f", entry.getSpiral()) + "%";;
+			run_data[i][5] = String.format("%.2f", entry.getWallFollow()) + "%";;
+		}
+
+		data_table = new JTable(run_data, COLUMN_HEADERS){public boolean isCellEditable(int rowIndex, int colIndex) {return false;}};;
+
+		JScrollPane container = new JScrollPane(data_table);
+		data_table.setFillsViewportHeight(true);
+
+		container.setSize(550, 400);
+		container.setLocation(185, 25);
+
+		data_frame = new JFrame("Data");
+
+		data_frame.setResizable(false);
+		data_frame.add(container);
+		data_frame.pack();
+		data_frame.setLocationRelativeTo(null);
+		data_frame.toFront();
+		data_frame.setState(JFrame.NORMAL);
+		data_frame.requestFocus();
+
+		data_frame.setVisible(true);
 	}
 	
 	public int getMouseX(){
