@@ -79,38 +79,6 @@
         "is_table": true
       }
     },
-    "131": {
-      "CLASSNAME": "com.team3.main.entities.Table",
-      "INSTANCE": {
-        "collision_bounds": [
-          {
-            "x": 189,
-            "y": 489,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 233,
-            "y": 489,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 233,
-            "y": 533,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 189,
-            "y": 533,
-            "width": 6,
-            "height": 6
-          }
-        ],
-        "is_table": true
-      }
-    },
     "67": {
       "CLASSNAME": "com.team3.main.entities.Table",
       "INSTANCE": {
@@ -182,38 +150,6 @@
           {
             "x": 249,
             "y": 533,
-            "width": 6,
-            "height": 6
-          }
-        ],
-        "is_table": true
-      }
-    },
-    "5": {
-      "CLASSNAME": "com.team3.main.entities.Table",
-      "INSTANCE": {
-        "collision_bounds": [
-          {
-            "x": 309,
-            "y": 9,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 353,
-            "y": 9,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 353,
-            "y": 53,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 309,
-            "y": 53,
             "width": 6,
             "height": 6
           }
@@ -22310,6 +22246,7 @@
   ]
 },
 {
+  "id": "B-0",
   "floorPlan": "B",
   "width": 960,
   "height": 540,
@@ -23045,7 +22982,7 @@
   ]
 },
 {
-  "id": "B-0",
+  "id": "B-2",
   "floorPlan": "B",
   "width": 960,
   "height": 540,
@@ -23078,38 +23015,6 @@
         "is_table": false
       }
     },
-    "98": {
-      "CLASSNAME": "com.team3.main.entities.Table",
-      "INSTANCE": {
-        "collision_bounds": [
-          {
-            "x": 129,
-            "y": 369,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 173,
-            "y": 369,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 173,
-            "y": 413,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 129,
-            "y": 413,
-            "width": 6,
-            "height": 6
-          }
-        ],
-        "is_table": true
-      }
-    },
     "4": {
       "CLASSNAME": "com.team3.main.entities.Table",
       "INSTANCE": {
@@ -23140,20 +23045,6 @@
           }
         ],
         "is_table": true
-      }
-    },
-    "36": {
-      "CLASSNAME": "com.team3.main.entities.Chest",
-      "INSTANCE": {
-        "collision_bounds": [
-          {
-            "x": 249,
-            "y": 129,
-            "width": 50,
-            "height": 50
-          }
-        ],
-        "is_table": false
       }
     },
     "132": {
@@ -23234,20 +23125,6 @@
         "is_table": true
       }
     },
-    "103": {
-      "CLASSNAME": "com.team3.main.entities.Chest",
-      "INSTANCE": {
-        "collision_bounds": [
-          {
-            "x": 429,
-            "y": 369,
-            "width": 50,
-            "height": 50
-          }
-        ],
-        "is_table": false
-      }
-    },
     "136": {
       "CLASSNAME": "com.team3.main.entities.Table",
       "INSTANCE": {
@@ -23273,38 +23150,6 @@
           {
             "x": 489,
             "y": 533,
-            "width": 6,
-            "height": 6
-          }
-        ],
-        "is_table": true
-      }
-    },
-    "107": {
-      "CLASSNAME": "com.team3.main.entities.Table",
-      "INSTANCE": {
-        "collision_bounds": [
-          {
-            "x": 669,
-            "y": 369,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 713,
-            "y": 369,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 713,
-            "y": 413,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 669,
-            "y": 413,
             "width": 6,
             "height": 6
           }
@@ -23404,32 +23249,36 @@
         "is_table": true
       }
     },
-    "47": {
-      "CLASSNAME": "com.team3.main.entities.Chest",
-      "INSTANCE": {
-        "collision_bounds": [
-          {
-            "x": 909,
-            "y": 129,
-            "width": 50,
-            "height": 50
-          }
-        ],
-        "is_table": false
-      }
-    },
-    "48": {
-      "CLASSNAME": "com.team3.main.entities.Chest",
+    "80": {
+      "CLASSNAME": "com.team3.main.entities.Table",
       "INSTANCE": {
         "collision_bounds": [
           {
             "x": 9,
-            "y": 189,
-            "width": 50,
-            "height": 50
+            "y": 309,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 53,
+            "y": 309,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 53,
+            "y": 353,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 9,
+            "y": 353,
+            "width": 6,
+            "height": 6
           }
         ],
-        "is_table": false
+        "is_table": true
       }
     },
     "17": {
@@ -23462,6 +23311,282 @@
           }
         ],
         "is_table": true
+      }
+    },
+    "22": {
+      "CLASSNAME": "com.team3.main.entities.Table",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 369,
+            "y": 69,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 413,
+            "y": 69,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 413,
+            "y": 113,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 369,
+            "y": 113,
+            "width": 6,
+            "height": 6
+          }
+        ],
+        "is_table": true
+      }
+    },
+    "23": {
+      "CLASSNAME": "com.team3.main.entities.Chest",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 429,
+            "y": 69,
+            "width": 50,
+            "height": 50
+          }
+        ],
+        "is_table": false
+      }
+    },
+    "26": {
+      "CLASSNAME": "com.team3.main.entities.Table",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 609,
+            "y": 69,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 653,
+            "y": 69,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 653,
+            "y": 113,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 609,
+            "y": 113,
+            "width": 6,
+            "height": 6
+          }
+        ],
+        "is_table": true
+      }
+    },
+    "29": {
+      "CLASSNAME": "com.team3.main.entities.Chest",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 789,
+            "y": 69,
+            "width": 50,
+            "height": 50
+          }
+        ],
+        "is_table": false
+      }
+    },
+    "98": {
+      "CLASSNAME": "com.team3.main.entities.Table",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 129,
+            "y": 369,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 173,
+            "y": 369,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 173,
+            "y": 413,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 129,
+            "y": 413,
+            "width": 6,
+            "height": 6
+          }
+        ],
+        "is_table": true
+      }
+    },
+    "36": {
+      "CLASSNAME": "com.team3.main.entities.Chest",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 249,
+            "y": 129,
+            "width": 50,
+            "height": 50
+          }
+        ],
+        "is_table": false
+      }
+    },
+    "103": {
+      "CLASSNAME": "com.team3.main.entities.Chest",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 429,
+            "y": 369,
+            "width": 50,
+            "height": 50
+          }
+        ],
+        "is_table": false
+      }
+    },
+    "39": {
+      "CLASSNAME": "com.team3.main.entities.Table",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 429,
+            "y": 129,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 473,
+            "y": 129,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 473,
+            "y": 173,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 429,
+            "y": 173,
+            "width": 6,
+            "height": 6
+          }
+        ],
+        "is_table": true
+      }
+    },
+    "107": {
+      "CLASSNAME": "com.team3.main.entities.Table",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 669,
+            "y": 369,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 713,
+            "y": 369,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 713,
+            "y": 413,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 669,
+            "y": 413,
+            "width": 6,
+            "height": 6
+          }
+        ],
+        "is_table": true
+      }
+    },
+    "47": {
+      "CLASSNAME": "com.team3.main.entities.Chest",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 909,
+            "y": 129,
+            "width": 50,
+            "height": 50
+          }
+        ],
+        "is_table": false
+      }
+    },
+    "111": {
+      "CLASSNAME": "com.team3.main.entities.Table",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 909,
+            "y": 369,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 953,
+            "y": 369,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 953,
+            "y": 413,
+            "width": 6,
+            "height": 6
+          },
+          {
+            "x": 909,
+            "y": 413,
+            "width": 6,
+            "height": 6
+          }
+        ],
+        "is_table": true
+      }
+    },
+    "48": {
+      "CLASSNAME": "com.team3.main.entities.Chest",
+      "INSTANCE": {
+        "collision_bounds": [
+          {
+            "x": 9,
+            "y": 189,
+            "width": 50,
+            "height": 50
+          }
+        ],
+        "is_table": false
       }
     },
     "49": {
@@ -23510,45 +23635,13 @@
         "is_table": false
       }
     },
-    "26": {
-      "CLASSNAME": "com.team3.main.entities.Table",
-      "INSTANCE": {
-        "collision_bounds": [
-          {
-            "x": 609,
-            "y": 69,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 653,
-            "y": 69,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 653,
-            "y": 113,
-            "width": 6,
-            "height": 6
-          },
-          {
-            "x": 609,
-            "y": 113,
-            "width": 6,
-            "height": 6
-          }
-        ],
-        "is_table": true
-      }
-    },
-    "29": {
+    "123": {
       "CLASSNAME": "com.team3.main.entities.Chest",
       "INSTANCE": {
         "collision_bounds": [
           {
-            "x": 789,
-            "y": 69,
+            "x": 669,
+            "y": 429,
             "width": 50,
             "height": 50
           }

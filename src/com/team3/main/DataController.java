@@ -17,8 +17,6 @@ import com.team3.main.entities.DataEntry;
 import com.team3.main.entities.House;
 import com.team3.main.entities.Obstacle;
 
-import javax.xml.crypto.Data;
-
 public class DataController {
 
     GsonBuilder builder;
@@ -201,6 +199,7 @@ public class DataController {
     }
 
     public void saveHouse(House house) {
+
         data.add(gson.toJson(house));
         
         String data_output = "";
@@ -262,6 +261,7 @@ public class DataController {
 
     public House loadHouse(String house_id) {
         for (House house : houses) {
+
             if (house.id.equals(house_id)) {
                 return house;
             }

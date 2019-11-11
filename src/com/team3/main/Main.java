@@ -304,9 +304,11 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 				if (gui_handler.getButtons().get("run").isPressed()) {
 					run_simulation = true;
 					has_started = true;
-					if (house_changed)
+
+					if (house_changed) {
 						init_house.id = data_controller.getHouseId(init_house);
-					data_controller.saveHouse(init_house);
+						data_controller.saveHouse(init_house);
+					}
 
 					if (simulation_controller.getMovementMethod() == SimulationController.ALL)
 						simulation_controller.updateMovementMethod();
@@ -493,6 +495,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		House house = data_controller.loadHouse(house_id);
 		if (house != null) {
 			simulation_controller.reset(new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1), house);
+			init_house = house;
 
 			reset();
 		}
