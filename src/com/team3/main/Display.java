@@ -1,16 +1,18 @@
 package com.team3.main;
 
-import com.team3.main.entities.DataEntry;
-import com.team3.main.entities.House;
-import com.team3.main.entities.Obstacle;
-import com.team3.main.entities.Robot;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+import java.awt.AlphaComposite;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
+import com.team3.main.entities.House;
+import com.team3.main.entities.Obstacle;
+import com.team3.main.entities.Robot;
 
 public class Display {
 

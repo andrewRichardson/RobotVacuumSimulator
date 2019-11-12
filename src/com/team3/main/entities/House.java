@@ -1,10 +1,6 @@
 package com.team3.main.entities;
 
-import com.team3.main.math.Vector2d;
-
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class House {
 

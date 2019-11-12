@@ -449,7 +449,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 
 		data_frame = new JFrame("Data");
 
-		data_frame.setResizable(false);
+		data_frame.setResizable(true);
 		data_frame.add(container);
 		data_frame.pack();
 		data_frame.setLocationRelativeTo(null);
