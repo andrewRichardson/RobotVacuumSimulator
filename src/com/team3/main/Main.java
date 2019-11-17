@@ -197,7 +197,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 
 			// Every second, output statistics in the window title
 			if (System.currentTimeMillis() - timer > 1000) {
-				average_color = MathUtil.averageColor(dirt_data, 0, 0, WIDTH, HEIGHT);
+				average_color = MathUtil.averageColor(dirt_data);
 
 				average_color_percentage = (255.0 - average_color.getRed()) / 255.0 * 100.0;
 
@@ -414,7 +414,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 
 	// When simulation ends, update percentages accordingly
 	private void setPercentages() {
-		average_color = MathUtil.averageColor(dirt_data, 0, 0, WIDTH, HEIGHT);
+		average_color = MathUtil.averageColor(dirt_data);
 		average_color_percentage = (255.0 - average_color.getRed()) / 255.0 * 100.0;
 
 		switch (simulation_controller.getMovementMethod()) {
@@ -446,7 +446,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		g.dispose();
-		
+
 		display.clearObstacleDirt(init_house, dirt_data);
 	}
 
