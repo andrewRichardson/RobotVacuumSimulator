@@ -327,6 +327,8 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 					run_simulation = true;
 					has_started = true;
 
+					display.clearObstacleDirt(init_house, dirt_data);
+
 					if (house_changed) {
 						init_house.id = data_controller.getHouseId(init_house);
 						data_controller.saveHouse(init_house);
@@ -412,6 +414,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 
 	// When simulation ends, update percentages accordingly
 	private void setPercentages() {
+		average_color = MathUtil.averageColor(dirt_data, 0, 0, WIDTH, HEIGHT);
+		average_color_percentage = (255.0 - average_color.getRed()) / 255.0 * 100.0;
+
 		switch (simulation_controller.getMovementMethod()) {
 			case SimulationController.RANDOM:
 				random_p = average_color_percentage;
@@ -441,6 +446,8 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, WIDTH, HEIGHT);
 		g.dispose();
+		
+		display.clearObstacleDirt(init_house, dirt_data);
 	}
 
 	// Reset all simulation data
