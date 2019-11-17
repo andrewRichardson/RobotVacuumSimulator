@@ -128,7 +128,7 @@ public class SimulationController {
             return true;
         }
 
-        return false;
+        return false; 
     }
 
     private boolean snake(boolean collide_obstacles) {
