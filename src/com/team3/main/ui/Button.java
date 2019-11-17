@@ -12,7 +12,7 @@ public class Button {
 	private int PRESSED_DURATION = 100;
 	
 	public Button(int x, int y, int width, int height, String name) {
-		bounds = new RoundRectangle2D.Double(x, y, width, height, 5, 5);
+		bounds = new RoundRectangle2D.Double(x, y, width, height, 5, 5); // Set bounds for button
 		this.text = name;
 	}
 
@@ -23,13 +23,13 @@ public class Button {
 		return bounds;
 	}
 	
-	public void press(int pressed_duration) {
+	public void press(int pressed_duration) { // If button is pressed, initiate callback routine and update pressed_duration
 		callback_complete = false;
 		PRESSED_DURATION = pressed_duration;
 	}
 	
 	public void pressedTimer() {
-		if(timer >= PRESSED_DURATION) {
+		if(timer >= PRESSED_DURATION) { // While the button is still "pressed", update.  When done, finish callback
 			pressed = false;
 			callback_complete = true;
 			timer = 0;
@@ -39,7 +39,7 @@ public class Button {
 	}
 	
 	public boolean isPressed() {
-		if (!callback_complete) {
+		if (!callback_complete) { // If the callback is not complete, return false. Otherwise, return true
 			callback_complete = true;
 			return true;
 		}
