@@ -38,13 +38,14 @@ public class SimulationController {
 
     public boolean handleDraw(InputHandler inputHandler, int mouse_x, int mouse_y, String draw_brush) {
         boolean drawing = false;
-        int grid_x = (int)Math.floor((double)mouse_x / (double) House.grid_size);
-        int grid_y = (int)Math.floor((double)mouse_y / (double) House.grid_size);
+        // Get the 60x60 grid location of the mouse click
+        int grid_x = (int)Math.floor((double)mouse_x / (double) House.GRID_SIZE);
+        int grid_y = (int)Math.floor((double)mouse_y / (double) House.GRID_SIZE);
 
-        int index = 16 * grid_y + grid_x;
-        Vector2d position = new Vector2d(grid_x * House.grid_size + 9, grid_y * House.grid_size + 9);
+        int index = 16 * grid_y + grid_x; // 2D array index to 1D array index
+        Vector2d position = new Vector2d(grid_x * House.GRID_SIZE + 9, grid_y * House.GRID_SIZE + 9); // Translate position to obstacle position
 
-        if (inputHandler.mouseClicked != last_click_status) {
+        if (inputHandler.mouseClicked != last_click_status) { // If the mouse was clicked, draw
             drawing = true;
             if (first_click) {
                 first_click = false;
@@ -52,8 +53,8 @@ public class SimulationController {
             } else {
                 last_click_status = inputHandler.mouseClicked;
 
-                current_house.obstacles.remove(index);
-                switch (draw_brush) {
+                current_house.obstacles.remove(index); // Remove the obstacle
+                switch (draw_brush) { // Add back a table or chest according to brush, if erase, do nothing
                     case TABLE:
                         current_house.obstacles.put(index, new Table(position.x, position.y));
                         break;
@@ -63,24 +64,26 @@ public class SimulationController {
                 }
             }
         }
-        return drawing;
+        return drawing; // Whether or not anything was actually changed
     }
 
     public void update(BufferedImage dirt_image, boolean collide_obstacles, BufferedImage dirt_data) {
+        // Initialize the dirt overlay graphics
         RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Graphics2D g_trail = dirt_image.createGraphics();
         g_trail.setRenderingHints(rh);
         g_trail.setComposite(AlphaComposite.Src);
         g_trail.setColor(new Color(0, 0, 0, 0));
 
+        // Update move_steps times each call
         for (int i = 0; i < move_steps; i++) {
-            if (reset_complete) {
-                if (total_steps++ > Robot.BATTERY_LIFE) {
+            if (reset_complete) { // If a reset was not called
+                if (total_steps++ > Robot.BATTERY_LIFE) { // If the Robot's battery has died, exit the loop
                     i = move_steps;
                 }
 
                 boolean did_collide = false;
-                switch (movement_method) {
+                switch (movement_method) { // Use appropriate movement method
                     case "Random":
                         did_collide = random(collide_obstacles);
                         break;
@@ -99,11 +102,11 @@ public class SimulationController {
                         break;
                 }
 
-                if (!did_collide) {
+                if (!did_collide) { // If the obstacle did not collide, collect dirt and update dirt overlay
                     draw_trail(g_trail);
                     collect_dirt(dirt_data);
                 }
-            } else {
+            } else { // If a reset was called, end the loop
                 reset_complete = true;
                 i = move_steps;
             }
@@ -113,10 +116,12 @@ public class SimulationController {
     }
 
     private boolean random(boolean collide_obstacles) {
+        // Go straight robot.getSpeed() units
         Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
         robot.addPosition(delta_position);
 
-        if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
+        if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) { // If the Robot collided
+            // Return to the previous position
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
 
             //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
@@ -132,12 +137,15 @@ public class SimulationController {
     }
 
     private boolean snake(boolean collide_obstacles) {
-        // when Vacuum bumps into something, rotate 90 degrees.
-        Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());; // unfinished
+        // Go straight robot.getSpeed() units
+        Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
         robot.addPosition(delta_position);
 
-        if (CollisionController.collisionDetection(current_house,  robot,  collide_obstacles)) {
+        if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) { // If the Robot collided
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+
+            //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
+            //  subtract PI/4 degrees so that the number is between -PI/4 and PI/4
             double direction = Math.PI/2;
             robot.addRotation(direction);
 
@@ -147,13 +155,15 @@ public class SimulationController {
     }
 
     private boolean spiral(boolean collide_obstacles) {
+        // Go straight robot.getSpeed() units
         Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * (robot.getSpeed() + spiral_move), Math.sin(robot.getRotation()) * (robot.getSpeed() + spiral_move));
         robot.addPosition(delta_position);
 
+        // Increase rotation
         robot.addRotation(Math.PI/180);
         spiral_move += Math.PI / 3600.0;
 
-        if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
+        if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) { // If the Robot collided
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
 
             //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
@@ -162,6 +172,7 @@ public class SimulationController {
 
             robot.addRotation(direction);
 
+            // Reset rotation increment
             spiral_move = 0;
 
             return true;
@@ -175,7 +186,7 @@ public class SimulationController {
         return false;
     }
 
-    private void draw_trail(Graphics2D g_trail) {
+    private void draw_trail(Graphics2D g_trail) { // Clear dirt overlay in location of robot vacuum and whiskers
         g_trail.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
         g_trail.fill(robot.getVacuumBounds());
         g_trail.fill(robot.getLeftWhisker());
@@ -184,18 +195,19 @@ public class SimulationController {
     }
 
     private void collect_dirt(BufferedImage dirt_data) {
+        // Create dirt data image graphics
         RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Graphics2D g = dirt_data.createGraphics();
         g.setRenderingHints(rh);
         g.setComposite(MultiplyComposite.Multiply);
 
-
+        // Clear dirt data image in location of robot vacuum and whiskers
         g.rotate(robot.getRotation() + (Math.PI / 2.0), robot.getPosition2d().x + Robot.diameter / 2.0, robot.getPosition2d().y + Robot.diameter / 2.0);
 
-        g.setColor(vacuum_color);
+        g.setColor(vacuum_color); // 10% of previous color
         g.fill(robot.getVacuumBounds());
 
-        g.setColor(whisker_color);
+        g.setColor(whisker_color); // 40% of previous color
         g.fill(robot.getLeftWhisker());
         g.fill(robot.getRightWhisker());
 
@@ -204,7 +216,7 @@ public class SimulationController {
         g.dispose();
     }
 
-    public void updateMovementMethod() {
+    public void updateMovementMethod() { // Set movement method to next method in order
         switch (movement_method) {
             case RANDOM:
                 movement_method = SNAKE;
@@ -229,19 +241,19 @@ public class SimulationController {
         }
     }
 
-    public void reset(Robot new_robot) {
+    public void reset(Robot new_robot) { // Reset the simulation
         total_steps = 0;
         spiral_move = 0;
         robot = new_robot;
         reset_complete = false;
     }
 
-    public void reset(Robot new_robot, House new_house) {
+    public void reset(Robot new_robot, House new_house) { // Reset the simulation with a new house
         current_house = new_house;
         reset(new_robot);
     }
 
-    public void updateSpeed() {
+    public void updateSpeed() { // Set simulation speed to next speed in order
         if(move_steps == 100)
             move_steps = 1;
         else if(move_steps == 1)

@@ -11,7 +11,7 @@ public class House {
 	public String id;
 	public final FloorPlan floorPlan;
 	public final int width, height;
-	public static final int grid_size = 60;
+	public static final int GRID_SIZE = 60;
 	public HashMap<Integer, Obstacle> obstacles;
 
 	private Obstacle[] walls;
