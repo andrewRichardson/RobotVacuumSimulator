@@ -16,11 +16,11 @@ public class Robot {
 	private Vacuum vacuum;
 	private Whisker left_whisker, right_whisker;
 
-	private final Vector2f vacuum_offset = new Vector2f(6.5, 4);
-	private final Vector2f left_whisker_offset = new Vector2f(-0.5, 2);
-	private final Vector2f right_whisker_offset = new Vector2f(17.5, 2);
-	public static final int diameter = 24;
-	public static final double BATTERY_LIFE = 150 * 60 * 6;
+	private final Vector2f vacuum_offset = new Vector2f(6.5, 4); // Where the vacuum is relative to the robot
+	private final Vector2f left_whisker_offset = new Vector2f(-0.5, 2); // Where the left whisker is relative to the robot
+	private final Vector2f right_whisker_offset = new Vector2f(17.5, 2); // Where the right whisker is relative to the robot
+	public static final int diameter = 24; // Size of the Robot's bounding circle
+	public static final double BATTERY_LIFE = 150 * 60 * 6; // The battery life of the Robot in updates
 
 	public Robot(Vector2f init_position, double init_rotation, double move_speed) {
 		position = init_position;
@@ -33,7 +33,7 @@ public class Robot {
 		right_whisker = new Whisker(new Vector2f(init_position.x + right_whisker_offset.x, init_position.y + right_whisker_offset.y));
 	}
 
-	public void setPosition(Vector2f position) {
+	public void setPosition(Vector2f position) { // Set a new position for the Robot and each child object
 		this.position = position;
 		bounds.x = this.position.x;
 		bounds.y = this.position.y;
@@ -48,7 +48,7 @@ public class Robot {
 		right_whisker.bounds.y = this.position.y + right_whisker_offset.y;
 	}
 
-	public void addPosition(Vector2f position) {
+	public void addPosition(Vector2f position) { // Add to the position of the Robot and each child object
 		this.position.add(position);
 
 		bounds.x = this.position.x;
