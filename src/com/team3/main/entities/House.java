@@ -8,13 +8,13 @@ public class House {
 		A, B
 	}
 
-	public String id;
-	public final FloorPlan floorPlan;
-	public final int width, height;
-	public static final int GRID_SIZE = 60;
-	public HashMap<Integer, Obstacle> obstacles;
+	public String id; // Unique identifier
+	public final FloorPlan floorPlan; // Floor plan A or B
+	public final int width, height; // Size of room
+	public static final int GRID_SIZE = 60; // Size of each square in the obstacle grid
+	public HashMap<Integer, Obstacle> obstacles; // Array of obstacles for the House
 
-	private Obstacle[] walls;
+	private Obstacle[] walls; // Array of walls (boundary walls and inner walls)
 	
 	public House(int width, int height, HashMap<Integer, Obstacle> obstacles, FloorPlan floorPlan) {
 		this.width = width;
@@ -44,7 +44,7 @@ public class House {
 	}
 
 	private void init_bounds() {
-		if (floorPlan == FloorPlan.A) {
+		if (floorPlan == FloorPlan.A) { // Add floor plan A walls
 			walls = new Obstacle[]{
 					new Barrier(-(Obstacle.GAP_SIZE + Obstacle.LEG_SIZE * 2), 0, (Obstacle.GAP_SIZE + Obstacle.LEG_SIZE * 2), height),
 					new Barrier(width, 0, (Obstacle.GAP_SIZE + Obstacle.LEG_SIZE), height),
@@ -67,7 +67,7 @@ public class House {
 					new Barrier(840, 480, 70, 10),
 					new Barrier(840, 490, 10, 51)
 			};
-		} else {
+		} else { // Add floor plan B walls
 			walls = new Obstacle[]{
 					new Barrier(-(Obstacle.GAP_SIZE + Obstacle.LEG_SIZE * 2), 0, (Obstacle.GAP_SIZE + Obstacle.LEG_SIZE * 2), height),
 					new Barrier(width, 0, (Obstacle.GAP_SIZE + Obstacle.LEG_SIZE), height),
