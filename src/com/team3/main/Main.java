@@ -200,10 +200,14 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 				average_color = MathUtil.averageColor(dirt_data);
 
 				average_color_percentage = (255.0 - average_color.getRed()) / 255.0 * 100.0;
+				
+				double total_seconds = simulation_controller.getTotalSteps() / 6.0;
+				int minutes = (int)Math.floor(total_seconds / 60.0);
+				int seconds = (int)(total_seconds % 60.0);
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() + " | Method: " + simulation_controller.getMovementMethod() : "paused") + " | Seconds elapsed: " + (simulation_controller.getTotalSteps() / 6) + " sec | Clean: " + String.format("%.2f", average_color_percentage) + "%");
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() + " | Method: " + simulation_controller.getMovementMethod() : "paused") + " | Time elapsed: " + minutes + ":" + seconds + " | Clean: " + String.format("%.2f", average_color_percentage) + "%");
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
