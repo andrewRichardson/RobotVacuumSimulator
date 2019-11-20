@@ -207,7 +207,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() + " | Method: " + simulation_controller.getMovementMethod() : "paused") + " | Time elapsed: " + minutes + ":" + seconds + " | Clean: " + String.format("%.2f", average_color_percentage) + "%");
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() + " | Method: " + simulation_controller.getMovementMethod() : "paused") + " | Time elapsed: " + minutes + ":" + (seconds == 0 ? "00" : seconds) + " | Clean: " + String.format("%.2f", average_color_percentage) + "%");
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
