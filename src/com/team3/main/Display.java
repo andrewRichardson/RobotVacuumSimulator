@@ -58,6 +58,8 @@ public class Display {
             g.drawImage(door_b, 0, 0, null);
         }
 
+        //renderWallsBounds(g, simulationController.getFloorPlan());
+
         // Render the Robot's vacuum and whiskers with correct rotation
         g.rotate(simulationController.getRobot().getRotation() + (Math.PI / 2.0), simulationController.getRobot().getPosition2d().x + Robot.diameter / 2.0, simulationController.getRobot().getPosition2d().y + Robot.diameter / 2.0);
 
@@ -96,6 +98,13 @@ public class Display {
             } else {
                 g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
             }
+        }
+    }
+
+    private void renderWallsBounds(Graphics2D g, House house) {
+        g.setColor(Color.RED);
+        for (Obstacle obstacle : house.getWalls()) {
+            g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
         }
     }
 

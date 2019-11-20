@@ -42,7 +42,7 @@ public class SimulationController {
         int grid_x = (int)Math.floor((double)mouse_x / (double) House.GRID_SIZE);
         int grid_y = (int)Math.floor((double)mouse_y / (double) House.GRID_SIZE);
 
-        int index = 16 * grid_y + grid_x; // 2D array index to 1D array index
+        int index = (current_house.floorPlan == House.FloorPlan.A ? 16 : 20) * grid_y + grid_x; // 2D array index to 1D array index
         Vector2d position = new Vector2d(grid_x * House.GRID_SIZE + 9, grid_y * House.GRID_SIZE + 9); // Translate position to obstacle position
 
         if (inputHandler.mouseClicked != last_click_status) { // If the mouse was clicked, draw
@@ -53,7 +53,7 @@ public class SimulationController {
             } else {
                 last_click_status = inputHandler.mouseClicked;
 
-                current_house.obstacles.remove(index); // Remove the obstacle
+                System.out.println(current_house.obstacles.remove(index)); // Remove the obstacle
                 switch (draw_brush) { // Add back a table or chest according to brush, if erase, do nothing
                     case TABLE:
                         current_house.obstacles.put(index, new Table(position.x, position.y));

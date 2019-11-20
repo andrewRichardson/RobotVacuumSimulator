@@ -73,18 +73,19 @@ public class House {
 					new Barrier(width, 0, (Obstacle.GAP_SIZE + Obstacle.LEG_SIZE), height),
 					new Barrier(0, -(Obstacle.GAP_SIZE + Obstacle.LEG_SIZE * 2), width, (Obstacle.GAP_SIZE + Obstacle.LEG_SIZE * 2)),
 					new Barrier(0, height, width, (Obstacle.GAP_SIZE + Obstacle.LEG_SIZE * 2)),
-					new Barrier(0, 180, 130, 10),
-					new Barrier(120, 190, 10, 60),
-					new Barrier(180, 180, 240, 10),
-					new Barrier(300, 120, 10, 60),
-					new Barrier(360, 120, 60, 10),
-					new Barrier(420, 0, 10, 250),
-					new Barrier(0, 300, 250, 10),
-					new Barrier(300, 300, 130, 10),
-					new Barrier(300, 310, 10, 120),
-					new Barrier(300, 480, 10, 61),
-					new Barrier(420, 310, 10, 231),
-					new Barrier(610, 240, 351, 10)
+					new Barrier(0, 240, 250, 10),
+					new Barrier(240, 250, 10, 60),
+					new Barrier(420, 180, 10, 60),
+					new Barrier(480, 180, 60, 10),
+					new Barrier(350, 240, 190, 10),
+					new Barrier(540, 0, 10, 309),
+					new Barrier(0, 420, 320, 10),
+					new Barrier(420, 420, 130, 10),
+					new Barrier(420, 430, 10, 120),
+					new Barrier(480, 480, 60, 10),
+					new Barrier(540, 430, 10, 246),
+					new Barrier(420, 650, 10, 26),
+					new Barrier(730, 300, 472, 10)
 			};
 		}
 	}

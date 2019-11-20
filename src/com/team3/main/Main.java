@@ -31,8 +31,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 	private static final long serialVersionUID = 1L;
 	private static JFrame frame, data_frame, house_frame;
 	private final String title = "Robot Vacuum";
-	private final int WIDTH = 960;
-	private final int HEIGHT = 540;
+	private final int WIDTH = 960, WIDTH_2 = 1200;
+	private final int HEIGHT = 540, HEIGHT_2 = 675;
+	private int width, height;
 	private int fps, ups, frame_time;
 	private static boolean running = false;
 	private boolean showFPS = true;
@@ -67,7 +68,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 	
 	public Main() {
 		// INIT VARS
-		Dimension d = new Dimension(WIDTH, HEIGHT);
+		width = WIDTH;
+		height = HEIGHT;
+
+		Dimension d = new Dimension(width, height);
 		setPreferredSize(d);
 		frame = new JFrame(title);
 		// END INIT VARS
@@ -91,25 +95,26 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		}
 
 		// Create dirt_data image used to store dirt/cleaning information for each simulation
-		dirt_data = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		dirt_data = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = dirt_data.createGraphics();
 		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.fillRect(0, 0, width, height);
 		g.dispose();
 		// END GRAPHICS VARS
 
 		// Create DataController
-		data_controller = new DataController("data/data.json", "data/houses.json", "data/data_pretty.json", "data/runs.json");
+		data_controller = new DataController("data/data.json", "data/houses.json", "data/runs.json");
 
 		// Load the default house
 		init_house = data_controller.loadHouse("A-0");
 		if (init_house == null) { // If the default house is not initialized on the disk, create a blank house
-			init_house = new House(WIDTH, HEIGHT);
+			init_house = new House(width, height, House.FloorPlan.A);
 			init_house.id = data_controller.getHouseId(init_house);
+			data_controller.saveHouse(init_house);
 		}
 
 		// Create Vacuum
-		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1);
+		robot = new Robot(new Vector2f(width/2, height/2), Math.PI / 2.0, 1);
 
 		// Create SimulationController
 		simulation_controller = new SimulationController(init_house, robot);
@@ -247,7 +252,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 					// Save the run data and reset the simulation
 					setPercentages();
 					reset();
-					simulation_controller.reset(new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1));
+					simulation_controller.reset(new Robot(new Vector2f(width/2, height/2), Math.PI / 2.0, 1));
 
 					data_controller.saveData(simulation_controller.getFloorPlan().id, random_p, snake_p, spiral_p, wall_follow_p);
 
@@ -261,7 +266,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 			} else { // Save the run data and reset the simulation
 				setPercentages();
 				reset();
-				simulation_controller.reset(new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1));
+				simulation_controller.reset(new Robot(new Vector2f(width/2, height/2), Math.PI / 2.0, 1));
 				if (all && (random_p == 0 || snake_p == 0 || spiral_p == 0 || wall_follow_p == 0))
 					simulation_controller.updateMovementMethod();
 				else {
@@ -399,7 +404,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
         g.setRenderingHints(rh);
         
 		g.setColor(new Color(255, 202, 128));
-		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.fillRect(0, 0, width, height);
 		g.setFont(font);
 		// END INIT CODE
 
@@ -441,14 +446,14 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 	private void reset() {
 		try {
 			dirt_overlay = ImageIO.read(new File("res/dirt.png"));
-		} catch(IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		dirt_data = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		dirt_data = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = dirt_data.createGraphics();
 		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.fillRect(0, 0, width, height);
 		g.dispose();
 
 		display.clearObstacleDirt(init_house, dirt_data);
@@ -464,6 +469,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		snake_p = 0;
 		spiral_p = 0;
 		wall_follow_p = 0;
+
+		while(!simulation_controller.getMovementMethod().equals(simulation_controller.ALL)) {
+			simulation_controller.updateMovementMethod();
+		}
 	}
 
 	// Show the data window
@@ -545,8 +554,20 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		// Select house
 		House house = data_controller.loadHouse(house_id);
 		if (house != null) {
-			simulation_controller.reset(new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1), house);
 			init_house = house;
+
+			if (init_house.floorPlan == House.FloorPlan.A) {
+				width = WIDTH;
+				height = HEIGHT;
+			} else {
+				width = WIDTH_2;
+				height = HEIGHT_2;
+			}
+
+			simulation_controller.reset(new Robot(new Vector2f(width/2, height/2), Math.PI / 2.0, 1), house);
+			setPreferredSize(new Dimension(width, height));
+			//frame.setPreferredSize(new Dimension(width, height));
+			frame.pack();
 
 			reset();
 		}

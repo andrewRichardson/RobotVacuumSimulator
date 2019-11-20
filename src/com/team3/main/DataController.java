@@ -20,15 +20,15 @@ import com.team3.main.entities.Obstacle;
 public class DataController {
 
     GsonBuilder builder;
-    Gson gson, gson_pretty;
-    private String data_path, id_path, data_pretty_path, run_path;
+    Gson gson;
+    private String data_path, id_path, run_path;
     private List<String> data, runs, b_id_string, a_id_string;
     private List<Integer> b_ids, a_ids, run_ids;
     private List<House> houses;
     private List<DataEntry> run_list;
     private final String VERSION = "v2";
 
-    public DataController(String data_path, String id_path, String data_pretty_path, String run_path){
+    public DataController(String data_path, String id_path, String run_path){
         data = new ArrayList<String>();
         a_id_string = new ArrayList<String>();
         b_id_string = new ArrayList<String>();
@@ -43,11 +43,9 @@ public class DataController {
         builder.registerTypeAdapter(Obstacle.class, new ObstacleAdapter());
 
         gson = builder.create();
-        gson_pretty = builder.setPrettyPrinting().create();
 
         this.data_path = data_path;
         this.id_path = id_path;
-        this.data_pretty_path = data_pretty_path;
         this.run_path = run_path;
         getData(); // Get saved data
     }
@@ -181,13 +179,13 @@ public class DataController {
             if (a_ids.size() > 0) // If there are existing A Ids, use next integer
                 id = a_ids.get(a_ids.size() - 1) + 1;
             else
-                id = 1;
+                id = 0;
             floorPlan = "A";
         } else {
             if (b_ids.size() > 0) // If there are existing B Ids, use next integer
                 id = b_ids.get(b_ids.size() - 1) + 1;
             else
-                id = 1;
+                id = 0;
             floorPlan = "B";
         }
 
@@ -211,23 +209,8 @@ public class DataController {
             data_output += house_data + "\n";
         }
 
-        String output_pretty = "[\n"; // Create a JSON-pretty output of the above
-
-        for (House object : houses) {
-            output_pretty += gson_pretty.toJson(object) + ",\n";
-        }
-
-        output_pretty = output_pretty.substring(0, output_pretty.length() - 2);
-        output_pretty += "\n]";
-
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(data_path), StandardCharsets.US_ASCII)) { // Try to output to the house data file
             writer.write(data_output, 0, data_output.length());
-        } catch (IOException x) {
-            System.err.format("IOException: %s%n", x);
-        }
-
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(data_pretty_path), StandardCharsets.US_ASCII)) { // Try to output to the pretty house data file
-            writer.write(output_pretty, 0, output_pretty.length());
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
         }

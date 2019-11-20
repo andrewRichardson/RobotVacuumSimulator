@@ -1,6 +1,7 @@
 package com.team3.main.entities;
 
 import java.awt.Rectangle;
+import java.util.Arrays;
 
 public abstract class Obstacle {
 	
@@ -28,6 +29,10 @@ public abstract class Obstacle {
 
 		collision_bounds = new Rectangle[1];
 		collision_bounds[0] = new Rectangle(x, y, width, height);
+	}
+
+	public String toString() {
+		return (is_table ? "Table: " : "Chest: ") + Arrays.toString(collision_bounds);
 	}
 	
 }
