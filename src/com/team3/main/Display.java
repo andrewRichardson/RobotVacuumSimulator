@@ -46,19 +46,18 @@ public class Display {
         g.drawImage(dirt_overlay, 0, 0, null);
 
         // Render obstacles if enabled
-        if (show_obstacles)
+        if (show_obstacles) {
             renderObstacles(g, simulationController.getFloorPlan());
 
-        // Render walls and doors according to floor plan
-        if (simulationController.getFloorPlan().floorPlan == House.FloorPlan.A) {
-            g.drawImage(floor_a, 0, 0, null);
-            g.drawImage(door_a, 0, 0, null);
-        } else {
-            g.drawImage(floor_b, 0, 0, null);
-            g.drawImage(door_b, 0, 0, null);
+            // Render walls and doors according to floor plan
+            if (simulationController.getFloorPlan().floorPlan == House.FloorPlan.A) {
+                g.drawImage(floor_a, 0, 0, null);
+                g.drawImage(door_a, 0, 0, null);
+            } else {
+                g.drawImage(floor_b, 0, 0, null);
+                g.drawImage(door_b, 0, 0, null);
+            }
         }
-
-        //renderWallsBounds(g, simulationController.getFloorPlan());
 
         // Render the Robot's vacuum and whiskers with correct rotation
         g.rotate(simulationController.getRobot().getRotation() + (Math.PI / 2.0), simulationController.getRobot().getPosition2d().x + Robot.diameter / 2.0, simulationController.getRobot().getPosition2d().y + Robot.diameter / 2.0);

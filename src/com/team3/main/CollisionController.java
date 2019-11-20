@@ -18,12 +18,21 @@ class CollisionController {
                     }
                 }
             }
-        }
 
-        for (Obstacle obstacle : floor_plan.getWalls()) { // Loop through walls
-            for (Rectangle rectangle : obstacle.collision_bounds) {
-                if (robot.getBounds().intersects(rectangle)) { // If the robot intersects with the obstacle, it has collided
-                    return true;
+            for (Obstacle obstacle : floor_plan.getWalls()) { // Loop through walls
+                for (Rectangle rectangle : obstacle.collision_bounds) {
+                    if (robot.getBounds().intersects(rectangle)) { // If the robot intersects with the obstacle, it has collided
+                        return true;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < 4; i++) {
+                Obstacle obstacle = floor_plan.getWalls()[i];
+                for (Rectangle rectangle : obstacle.collision_bounds) {
+                    if (robot.getBounds().intersects(rectangle)) { // If the robot intersects with the obstacle, it has collided
+                        return true;
+                    }
                 }
             }
         }
