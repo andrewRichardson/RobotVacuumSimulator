@@ -10,6 +10,9 @@ local.properties
 .loadpath
 .recommenders
 
+.json
+
+
 # External tool builders
 .externalToolBuilders/
 
