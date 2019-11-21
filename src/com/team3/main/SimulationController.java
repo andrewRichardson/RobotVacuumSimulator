@@ -24,8 +24,7 @@ public class SimulationController {
     private Random random;
     private int move_steps = 1, total_steps = 0;
     private boolean last_click_status = false, first_click = true, reset_complete = false;
-    private double snake_move;
-    private double spiral_move;
+    private double spiral_move, snake_move;
     private boolean snake_turn_switch = false;
 
     private Color vacuum_color = new Color(0.1f, 0.1f, 0.1f);
@@ -137,7 +136,7 @@ public class SimulationController {
 
         return false; 
     }
-    // snake is unfinished currently
+
     private boolean snake(boolean collide_obstacles) {
     	// Go straight robot.getSpeed() units
         Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
@@ -183,7 +182,6 @@ public class SimulationController {
         
         return false;
     }
-            
 
     private boolean spiral(boolean collide_obstacles) {
         // Go straight robot.getSpeed() units

@@ -26,20 +26,6 @@
 {"run_id":"v2-37","house_id":"B-1","random":16.470588235294116,"snake":0.0,"spiral":0.0,"wall_follow":0.0}
 {"run_id":"v2-38","house_id":"B-2","random":60.3921568627451,"snake":0.0,"spiral":0.0,"wall_follow":0.0}
 {"run_id":"v2-39","house_id":"A-13","random":33.33333333333333,"snake":0.0,"spiral":0.0,"wall_follow":0.0}
-<<<<<<< HEAD
-{"run_id":"v2-40","house_id":"A-0","random":0.0,"snake":2.7450980392156863,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-41","house_id":"A-0","random":0.0,"snake":3.1372549019607843,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-42","house_id":"A-14","random":0.0,"snake":8.627450980392156,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-43","house_id":"A-0","random":0.0,"snake":3.1372549019607843,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-44","house_id":"A-0","random":0.0,"snake":3.1372549019607843,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-45","house_id":"A-0","random":0.0,"snake":3.1372549019607843,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-46","house_id":"A-0","random":0.0,"snake":3.1372549019607843,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-47","house_id":"A-0","random":0.0,"snake":3.1372549019607843,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-48","house_id":"A-0","random":0.0,"snake":0.39215686274509803,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-49","house_id":"A-0","random":1.5686274509803921,"snake":0.0,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-50","house_id":"A-0","random":0.0,"snake":2.3529411764705883,"spiral":0.0,"wall_follow":0.0}
-{"run_id":"v2-51","house_id":"A-0","random":0.0,"snake":0.7843137254901961,"spiral":0.0,"wall_follow":0.0}
-=======
 {"run_id":"v2-40","house_id":"A-0","random":43.92156862745098,"snake":3.1372549019607843,"spiral":63.921568627450974,"wall_follow":0.39215686274509803}
 {"run_id":"v2-41","house_id":"A-0","random":0.39215686274509803,"snake":0.0,"spiral":0.0,"wall_follow":0.0}
 {"run_id":"v2-42","house_id":"A-14","random":16.862745098039216,"snake":0.0,"spiral":0.0,"wall_follow":0.0}
@@ -58,4 +44,4 @@
 {"run_id":"v2-55","house_id":"B-0","random":27.84313725490196,"snake":0.0,"spiral":0.0,"wall_follow":0.0}
 {"run_id":"v2-56","house_id":"B-0","random":63.52941176470588,"snake":16.07843137254902,"spiral":0.0,"wall_follow":0.0}
 {"run_id":"v2-57","house_id":"A-0","random":49.80392156862745,"snake":18.43137254901961,"spiral":63.921568627450974,"wall_follow":10.588235294117647}
->>>>>>> 48afc1edd2a8a4f2ebcf17949251066f686695be
+{"run_id":"v2-58","house_id":"A-0","random":86.27450980392157,"snake":0.0,"spiral":0.0,"wall_follow":0.0}
