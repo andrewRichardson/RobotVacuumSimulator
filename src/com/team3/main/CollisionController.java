@@ -9,26 +9,34 @@ import java.awt.*;
 class CollisionController {
 
     static boolean collisionDetection(House floor_plan, Robot robot, boolean collide_obstacles) {
-        boolean has_collided = false;
-
+        // If obstacle collsion is enabled, check it
         if (collide_obstacles) {
-            for (Obstacle obstacle : floor_plan.obstacles.values()) {
+            for (Obstacle obstacle : floor_plan.obstacles.values()) { // Loop through obstacles
                 for (Rectangle rectangle : obstacle.collision_bounds) {
-                    if (robot.getBounds().intersects(rectangle)) {
-                        has_collided = true;
+                    if (robot.getBounds().intersects(rectangle)) { // If the robot intersects with the obstacle, it has collided
+                        return true;
+                    }
+                }
+            }
+
+            for (Obstacle obstacle : floor_plan.getWalls()) { // Loop through walls
+                for (Rectangle rectangle : obstacle.collision_bounds) {
+                    if (robot.getBounds().intersects(rectangle)) { // If the robot intersects with the obstacle, it has collided
+                        return true;
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < 4; i++) {
+                Obstacle obstacle = floor_plan.getWalls()[i];
+                for (Rectangle rectangle : obstacle.collision_bounds) {
+                    if (robot.getBounds().intersects(rectangle)) { // If the robot intersects with the obstacle, it has collided
+                        return true;
                     }
                 }
             }
         }
 
-        for (Obstacle obstacle : floor_plan.getWalls()) {
-            for (Rectangle rectangle : obstacle.collision_bounds) {
-                if (robot.getBounds().intersects(rectangle)) {
-                    has_collided = true;
-                }
-            }
-        }
-
-        return has_collided;
+        return false;
     }
 }

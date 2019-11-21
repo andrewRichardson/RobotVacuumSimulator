@@ -20,15 +20,15 @@ import com.team3.main.entities.Obstacle;
 public class DataController {
 
     GsonBuilder builder;
-    Gson gson, gson_pretty;
-    private String data_path, id_path, data_pretty_path, run_path;
+    Gson gson;
+    private String data_path, id_path, run_path;
     private List<String> data, runs, b_id_string, a_id_string;
     private List<Integer> b_ids, a_ids, run_ids;
     private List<House> houses;
     private List<DataEntry> run_list;
     private final String VERSION = "v2";
 
-    public DataController(String data_path, String id_path, String data_pretty_path, String run_path){
+    public DataController(String data_path, String id_path, String run_path){
         data = new ArrayList<String>();
         a_id_string = new ArrayList<String>();
         b_id_string = new ArrayList<String>();
@@ -43,19 +43,17 @@ public class DataController {
         builder.registerTypeAdapter(Obstacle.class, new ObstacleAdapter());
 
         gson = builder.create();
-        gson_pretty = builder.setPrettyPrinting().create();
 
         this.data_path = data_path;
         this.id_path = id_path;
-        this.data_pretty_path = data_pretty_path;
         this.run_path = run_path;
-        getData();
+        getData(); // Get saved data
     }
 
     private void getData() {
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get(id_path), StandardCharsets.US_ASCII)) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(id_path), StandardCharsets.US_ASCII)) { // Try to read the house Id file
             String line = null;
-            while ((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) { // Read all lines and add the strings to the string-id arrays
                 if (line.charAt(0) == 'A')
                     a_id_string.add(line);
                 else
@@ -65,9 +63,9 @@ public class DataController {
             System.err.format("IOException: %s%n", x);
         }
 
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get(data_path), StandardCharsets.US_ASCII)) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(data_path), StandardCharsets.US_ASCII)) { // Try to read the house data file
             String line = null;
-            while ((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) { // Read all lines and add the strings to the string-data array and the House array
                 data.add(line);
                 houses.add(gson.fromJson(line.trim(), House.class));
             }
@@ -75,16 +73,16 @@ public class DataController {
             System.err.format("IOException: %s%n", x);
         }
 
-        try (BufferedReader reader = Files.newBufferedReader(Paths.get(run_path), StandardCharsets.US_ASCII)) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(run_path), StandardCharsets.US_ASCII)) { // Try tot read the runs path
             String line = null;
-            while ((line = reader.readLine()) != null) {
+            while ((line = reader.readLine()) != null) { // Read all lines and add the strings to the string-runs array
                 runs.add(line);
             }
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
         }
 
-        for (String line : a_id_string) {
+        for (String line : a_id_string) { // Add all integer Ids to the A array
             int id;
             String number = line.substring(2);
             try {
@@ -98,7 +96,7 @@ public class DataController {
             a_ids.add(id);
         }
 
-        for (String line : b_id_string) {
+        for (String line : b_id_string) { // Add all integer Ids to the B array
             int id;
             String number = line.substring(2);
             try {
@@ -112,7 +110,7 @@ public class DataController {
             b_ids.add(id);
         }
 
-        for (int i = 0; i < run_list.size(); i++) {
+        for (int i = 0; i < run_list.size(); i++) { // Add all integer run Ids to the runs array
             String number = run_list.get(i).getRunId();
             try {
                 Integer.valueOf(number);
@@ -123,19 +121,21 @@ public class DataController {
             }
         }
 
+        // Sort the ids by alphabetical order
         Collections.sort(a_ids);
         Collections.sort(b_ids);
 
-        for (String line : runs) {
+        for (String line : runs) { // Populate the DataEntry runs array by de-serializing the string-runs array
             run_list.add(gson.fromJson(line.trim(), DataEntry.class));
         }
 
+        // Sort the runs array using a custom comparator
         run_list.sort(new RunComparator());
     }
 
     public void saveData(String id, double random, double snake, double spiral, double wall_follow) {
         int latest_id;
-        if (run_list.size() > 0){
+        if (run_list.size() > 0){ // Get the latest run Id as long as there are previous runs
             String run_id = run_list.get(run_list.size() - 1).getRunId();
             String run_number = run_id.substring(run_id.indexOf('-')+1);
 
@@ -146,22 +146,25 @@ public class DataController {
                 System.out.println("Run ID is incorrectly formatted.");
                 latest_id = 99999;
             }
-        } else {
+        } else { // If this is the first run, use 1
             latest_id = 1;
         }
 
+        // Create a new DataEntry, add it to the string-runs and runs array
         DataEntry dataEntry = new DataEntry(VERSION+"-"+latest_id, id, random, snake, spiral, wall_follow);
         runs.add(gson.toJson(dataEntry));
         run_list.add(dataEntry);
 
+        // Re-sort the array
         run_list.sort(new RunComparator());
 
+        // Create a string output of the runs array
         String data_output = "";
         for (DataEntry run_data : run_list) {
             data_output += gson.toJson(run_data) + "\n";
         }
 
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(run_path), StandardCharsets.US_ASCII)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(run_path), StandardCharsets.US_ASCII)) { // Try to output the run data to the runs file
             writer.write(data_output, 0, data_output.length());
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
@@ -172,22 +175,22 @@ public class DataController {
         String floorPlan;
         int id;
 
-        if (house.floorPlan == House.FloorPlan.A) {
-            if (a_ids.size() > 0)
+        if (house.floorPlan == House.FloorPlan.A) { // Assign a new Id to the house
+            if (a_ids.size() > 0) // If there are existing A Ids, use next integer
                 id = a_ids.get(a_ids.size() - 1) + 1;
             else
-                id = 1;
+                id = 0;
             floorPlan = "A";
         } else {
-            if (b_ids.size() > 0)
+            if (b_ids.size() > 0) // If there are existing B Ids, use next integer
                 id = b_ids.get(b_ids.size() - 1) + 1;
             else
-                id = 1;
+                id = 0;
             floorPlan = "B";
         }
 
         String full_id = floorPlan + "-" + id;
-        if (house.floorPlan == House.FloorPlan.A) {
+        if (house.floorPlan == House.FloorPlan.A) { // Add the new Id to the respective arrays
             a_ids.add(id);
             a_id_string.add(full_id);
         } else {
@@ -199,44 +202,28 @@ public class DataController {
     }
 
     public void saveHouse(House house) {
-
-        data.add(gson.toJson(house));
+        data.add(gson.toJson(house)); // Add the house to the string-house array
         
         String data_output = "";
-        for (String house_data : data) {
+        for (String house_data : data) { // Create string output of the array
             data_output += house_data + "\n";
         }
 
-        String output_pretty = "[\n";
-
-        for (House object : houses) {
-            output_pretty += gson_pretty.toJson(object) + ",\n";
-        }
-
-        output_pretty = output_pretty.substring(0, output_pretty.length() - 2);
-        output_pretty += "\n]";
-
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(data_path), StandardCharsets.US_ASCII)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(data_path), StandardCharsets.US_ASCII)) { // Try to output to the house data file
             writer.write(data_output, 0, data_output.length());
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
         }
 
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(data_pretty_path), StandardCharsets.US_ASCII)) {
-            writer.write(output_pretty, 0, output_pretty.length());
-        } catch (IOException x) {
-            System.err.format("IOException: %s%n", x);
-        }
-
         String id_output = "";
-        for (int id : a_ids) {
+        for (int id : a_ids) { // Create string output of the A id array
             id_output += "A-" + id + "\n";
         }
-        for (int id : b_ids) {
+        for (int id : b_ids) { // Create string output of the B id array
             id_output += "B-" + id + "\n";
         }
 
-        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(id_path), StandardCharsets.US_ASCII)) {
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(id_path), StandardCharsets.US_ASCII)) { // Try to output to the id data file
             writer.write(id_output, 0, id_output.length());
         } catch (IOException x) {
             System.err.format("IOException: %s%n", x);
@@ -247,7 +234,7 @@ public class DataController {
         return run_list;
     }
 
-    public List<String> getHouseData() {
+    public List<String> getHouseData() { // Get a list of all house Ids
         List<String> house_ids = new ArrayList<String>();
         for (String id : a_id_string) {
             house_ids.add(id);
@@ -259,7 +246,7 @@ public class DataController {
         return house_ids;
     }
 
-    public House loadHouse(String house_id) {
+    public House loadHouse(String house_id) { // Get the associated house from the House array
         for (House house : houses) {
 
             if (house.id.equals(house_id)) {
@@ -270,7 +257,7 @@ public class DataController {
         return null;
     }
 
-    private class ObstacleAdapter implements JsonSerializer<Obstacle>, JsonDeserializer<Obstacle>{
+    private class ObstacleAdapter implements JsonSerializer<Obstacle>, JsonDeserializer<Obstacle>{ // De-/Serializer for the Obstacle class to handle abstract implementations
 
         private static final String CLASSNAME = "CLASSNAME";
         private static final String INSTANCE  = "INSTANCE";
@@ -305,7 +292,7 @@ public class DataController {
         }
     }
 
-    private class RunComparator implements Comparator<DataEntry> {
+    private class RunComparator implements Comparator<DataEntry> { // Custom comparator to sort DataEntries by Id
         @Override
         public int compare(DataEntry a, DataEntry b) {
             int a_id = Integer.parseInt(a.getRunId().substring(a.getRunId().indexOf('-')+1));

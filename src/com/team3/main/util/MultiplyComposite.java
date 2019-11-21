@@ -7,7 +7,7 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 public class MultiplyComposite implements Composite, CompositeContext {
-    protected void checkRaster(Raster r) {
+    protected void checkRaster(Raster r) { // Check if the image type is INT and not BYTE so math can be done correctly
         if (r.getSampleModel().getDataType() != DataBuffer.TYPE_INT) {
             throw new IllegalStateException("Expected integer sample type");
         }
@@ -15,6 +15,7 @@ public class MultiplyComposite implements Composite, CompositeContext {
 
     @Override
     public void compose(Raster src, Raster dstIn, WritableRaster dstOut) {
+        // Check all data types
         checkRaster(src);
         checkRaster(dstIn);
         checkRaster(dstOut);
@@ -25,7 +26,9 @@ public class MultiplyComposite implements Composite, CompositeContext {
         int[] srcPixels = new int[width];
         int[] dstPixels = new int[width];
 
+        // For each row and each pixel, mix the source and destination pixel and output to destination-out
         for (y=0; y < height; y++) {
+            // Get row from each image
             src.getDataElements(0, y, width, 1, srcPixels);
             dstIn.getDataElements(0, y, width, 1, dstPixels);
 
@@ -33,11 +36,12 @@ public class MultiplyComposite implements Composite, CompositeContext {
                 dstPixels[x] = mixPixel(srcPixels[x], dstPixels[x]);
             }
 
+            // Set row
             dstOut.setDataElements(0, y, width, 1, dstPixels);
         }
     }
 
-    private static int mixPixel(int x, int y) {
+    private static int mixPixel(int x, int y) { // For a given pixel, mix the colors together
         int xb = (x) & 0xFF;
         int yb = (y) & 0xFF;
         int b = (xb * yb) / 255;

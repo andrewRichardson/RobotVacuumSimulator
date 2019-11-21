@@ -18,6 +18,7 @@ public class Display {
 
     private BufferedImage planks_image, chest_image, table_image, table_legs_image, vacuum_image, data_image, floor_a, floor_b, door_a, door_b;
 
+    // Try to get all image files
     public Display() {
         // Images
         try {
@@ -36,22 +37,29 @@ public class Display {
         }
     }
 
+    // Render main display
     public void render(Graphics2D g, SimulationController simulationController, DataController dataController, boolean show_obstacles, BufferedImage dirt_overlay) {
+        // Render background
         g.drawImage(planks_image, 0, 0, null);
 
+        // Render dirt
         g.drawImage(dirt_overlay, 0, 0, null);
 
-        if (show_obstacles)
+        // Render obstacles if enabled
+        if (show_obstacles) {
             renderObstacles(g, simulationController.getFloorPlan());
 
-        if (simulationController.getFloorPlan().floorPlan == House.FloorPlan.A) {
-            g.drawImage(floor_a, 0, 0, null);
-            g.drawImage(door_a, 0, 0, null);
-        } else {
-            g.drawImage(floor_b, 0, 0, null);
-            g.drawImage(door_b, 0, 0, null);
+            // Render walls and doors according to floor plan
+            if (simulationController.getFloorPlan().floorPlan == House.FloorPlan.A) {
+                g.drawImage(floor_a, 0, 0, null);
+                g.drawImage(door_a, 0, 0, null);
+            } else {
+                g.drawImage(floor_b, 0, 0, null);
+                g.drawImage(door_b, 0, 0, null);
+            }
         }
 
+        // Render the Robot's vacuum and whiskers with correct rotation
         g.rotate(simulationController.getRobot().getRotation() + (Math.PI / 2.0), simulationController.getRobot().getPosition2d().x + Robot.diameter / 2.0, simulationController.getRobot().getPosition2d().y + Robot.diameter / 2.0);
 
         g.setColor(Color.BLACK);
@@ -61,9 +69,11 @@ public class Display {
 
         g.rotate(-simulationController.getRobot().getRotation() - (Math.PI / 2.0), simulationController.getRobot().getPosition2d().x + Robot.diameter / 2.0, simulationController.getRobot().getPosition2d().y + Robot.diameter / 2.0);
 
+        // Render the Robot
         g.drawImage(vacuum_image, simulationController.getRobot().getPosition2d().x, simulationController.getRobot().getPosition2d().y, null);
     }
 
+    // Render obstacles
     private void renderObstacles(Graphics2D g, House house) {
         for (Obstacle obstacle : house.obstacles.values()) {
             if (obstacle.is_table) {
@@ -75,6 +85,7 @@ public class Display {
         }
     }
 
+    // Render obstacles as red rectangles
     private void renderObstacleBounds(Graphics2D g, House house) {
         g.setColor(Color.RED);
         for (Obstacle obstacle : house.obstacles.values()) {
@@ -89,6 +100,14 @@ public class Display {
         }
     }
 
+    private void renderWallsBounds(Graphics2D g, House house) {
+        g.setColor(Color.RED);
+        for (Obstacle obstacle : house.getWalls()) {
+            g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
+        }
+    }
+
+    // Clear the dirt under obstacles
     public void clearObstacleDirt(House house, BufferedImage dirt_image) {
         RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         Graphics2D g = dirt_image.createGraphics();

@@ -31,8 +31,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 	private static final long serialVersionUID = 1L;
 	private static JFrame frame, data_frame, house_frame;
 	private final String title = "Robot Vacuum";
-	private final int WIDTH = 960;
-	private final int HEIGHT = 540;
+	private final int WIDTH = 960, WIDTH_2 = 1200;
+	private final int HEIGHT = 540, HEIGHT_2 = 675;
+	private int width, height;
 	private int fps, ups, frame_time;
 	private static boolean running = false;
 	private boolean showFPS = true;
@@ -67,7 +68,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 	
 	public Main() {
 		// INIT VARS
-		Dimension d = new Dimension(WIDTH, HEIGHT);
+		width = WIDTH;
+		height = HEIGHT;
+
+		Dimension d = new Dimension(width, height);
 		setPreferredSize(d);
 		frame = new JFrame(title);
 		// END INIT VARS
@@ -83,42 +87,50 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		// GRAPHICS VARS
 		font = new Font("Arial", Font.BOLD, 12);
 
+		// Get dirt_overlay image from file
 		try {
 			dirt_overlay = ImageIO.read(new File("res/dirt.png"));
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 
-		dirt_data = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		// Create dirt_data image used to store dirt/cleaning information for each simulation
+		dirt_data = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = dirt_data.createGraphics();
 		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.fillRect(0, 0, width, height);
 		g.dispose();
 		// END GRAPHICS VARS
 
-		// Collision handling for vacuum and obstacles
-		data_controller = new DataController("data/data.json", "data/houses.json", "data/data_pretty.json", "data/runs.json");
+		// Create DataController
+		data_controller = new DataController("data/data.json", "data/houses.json", "data/runs.json");
 
+		// Load the default house
 		init_house = data_controller.loadHouse("A-0");
-		if (init_house == null) {
-			init_house = new House(WIDTH, HEIGHT);
+		if (init_house == null) { // If the default house is not initialized on the disk, create a blank house
+			init_house = new House(width, height, House.FloorPlan.A);
 			init_house.id = data_controller.getHouseId(init_house);
+			data_controller.saveHouse(init_house);
 		}
 
 		// Create Vacuum
-		robot = new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1);
+		robot = new Robot(new Vector2f(width/2, height/2), Math.PI / 2.0, 1);
 
 		// Create SimulationController
 		simulation_controller = new SimulationController(init_house, robot);
 
 		// Create Display
 		display = new Display();
-		
+
+		// Colors for the GUI buttons
 		Color background_color = new Color(31, 133, 222);
 		Color pressed_color = new Color(30, 80, 130);
 		Color font_color = new Color(241, 241, 241);
-		
+
+		// Create the GUIHandler
 		gui_handler = new GUIHandler(background_color, pressed_color, background_color, font_color, 0.75f);
+
+		// Add buttons for Simulation Mode
 		gui_handler.addButton(new Button(25, 25, 80, 30, "▶"), "run");
 		gui_handler.addButton(new Button(115, 25, 80, 30, "x1"), "speed");
 		gui_handler.addButton(new Button(115, 25, 80, 30, "⏹"), "stop");
@@ -128,16 +140,19 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
         gui_handler.addButton(new Button(655, 25, 120, 30, "Data Mode"), "data");
 		gui_handler.addButton(new Button(785, 25, 120, 30, "Select House"), "house");
 
+		// Add buttons for Draw Mode
 		gui_handler.addButton(new Button(25, 25, 80, 30, "Hold ESC"), "tools");
 		gui_handler.addButton(new Button(25, 25, 150, 30, "Simulation Mode"), "simulation");
 		gui_handler.addButton(new Button(185, 25, 150, 30, "Brush: " + draw_brush), "brush");
 	}
 
+	// Main method
 	public static void main(String[] args) {
 		Main game = new Main();
 
 		System.setProperty("sun.java2d.opengl", "true");
 
+		// Set properties of the main window
 		frame.setResizable(false);
 		frame.add(game);
 		frame.pack();
@@ -151,6 +166,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		game.start();
 	}
 
+	// Start the game thread
 	private synchronized void start() {
 		running = true;
 
@@ -158,6 +174,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		thread.start();
 	}
 
+	// Update the game thread
 	public void run() {
 		long oldTime = System.nanoTime();
 		long timer = System.currentTimeMillis();
@@ -167,25 +184,35 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		double delta = 0;
 
 		while (running) {
+			// Get the deltaTime (time between this frame and the last frame)
 			newTime = System.nanoTime();
 			delta += (double) (newTime - oldTime) / ns;
 			oldTime = newTime;
+
+			// If it has been 1/60th of a second, update the simulation
 			if (delta >= 1) {
 				delta--;
 				ups++;
 				update();
 			}
+
+			// Render every loop
 			render();
 			fps++;
 
+			// Every second, output statistics in the window title
 			if (System.currentTimeMillis() - timer > 1000) {
-				average_color = MathUtil.averageColor(dirt_data, 0, 0, WIDTH, HEIGHT);
+				average_color = MathUtil.averageColor(dirt_data);
 
 				average_color_percentage = (255.0 - average_color.getRed()) / 255.0 * 100.0;
+				
+				double total_seconds = simulation_controller.getTotalSteps() / 6.0;
+				int minutes = (int)Math.floor(total_seconds / 60.0);
+				int seconds = (int)(total_seconds % 60.0);
 
 				timer += 1000;
 				if (showFPS)
-					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() + " | Method: " + simulation_controller.getMovementMethod() : "paused") + " | Seconds elapsed: " + (simulation_controller.getTotalSteps() / 6) + " sec | Clean: " + String.format("%.2f", average_color_percentage) + "%");
+					frame.setTitle(title + " | " + fps + " fps " + ups + " ups | Simulation " + (run_simulation ? "running at x" + simulation_controller.getSpeed() + " | Method: " + simulation_controller.getMovementMethod() : "paused") + " | Time elapsed: " + minutes + ":" + (seconds == 0 ? "00" : seconds) + " | Clean: " + String.format("%.2f", average_color_percentage) + "%");
 				else
 					frame.setTitle(title);
 				// System.out.println(ups + " ups, " + fps + " fps");
@@ -197,6 +224,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		stop();
 	}
 
+	// Stop the game thread
 	private synchronized void stop() {
 		try {
 			thread.join();
@@ -205,23 +233,26 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		}
 	}
 
+	// Update the game
 	private void update() {
 		input.update();
-		
+
+		// If the simulation is running
 		if(run_simulation) {
-			if (simulation_controller.getTotalSteps() < Robot.BATTERY_LIFE) {
-				if (gui_handler.getButtons().get("run").isPressed()) {
+			if (simulation_controller.getTotalSteps() < Robot.BATTERY_LIFE) { // If the Robot has not run out of battery
+				if (gui_handler.getButtons().get("run").isPressed()) { // Pause the simulation
 					run_simulation = false;
 
 					gui_handler.changeButtonText("run", "▶");
 				}
-				if (gui_handler.getButtons().get("stop").isPressed()) {
+				if (gui_handler.getButtons().get("stop").isPressed()) { // Stop the simulation and go to Data Mode
 					run_simulation = false;
 					data_mode = true;
 
+					// Save the run data and reset the simulation
 					setPercentages();
 					reset();
-					simulation_controller.reset(new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1));
+					simulation_controller.reset(new Robot(new Vector2f(width/2, height/2), Math.PI / 2.0, 1));
 
 					data_controller.saveData(simulation_controller.getFloorPlan().id, random_p, snake_p, spiral_p, wall_follow_p);
 
@@ -232,10 +263,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 				}
 
 				simulation_controller.update(dirt_overlay, show_obstacles, dirt_data);
-			} else {
+			} else { // Save the run data and reset the simulation
 				setPercentages();
 				reset();
-				simulation_controller.reset(new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1));
+				simulation_controller.reset(new Robot(new Vector2f(width/2, height/2), Math.PI / 2.0, 1));
 				if (all && (random_p == 0 || snake_p == 0 || spiral_p == 0 || wall_follow_p == 0))
 					simulation_controller.updateMovementMethod();
 				else {
@@ -250,17 +281,17 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 				}
 			}
 		} else {
-			if(draw_mode){
-				if(mode_cooldown < 100){
+			if(draw_mode){ // If Draw Mode
+				if(mode_cooldown < 100){ // Handle double click issues
 					mode_cooldown++;
 				} else {
-					if (input.escape) {
-						if (gui_handler.getButtons().get("simulation").isPressed()) {
+					if (input.escape) { // If not drawing and trying to click buttons
+						if (gui_handler.getButtons().get("simulation").isPressed()) { // Go to Simulation Mode
 							draw_mode = false;
 							draw_brush = SimulationController.ERASE;
 						}
 
-						if (gui_handler.getButtons().get("brush").isPressed()) {
+						if (gui_handler.getButtons().get("brush").isPressed()) { // Change the current brush
 							switch (draw_brush) {
 								case SimulationController.ERASE:
 									draw_brush = SimulationController.TABLE;
@@ -276,34 +307,36 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 							gui_handler.changeButtonText("brush", "Brush: " + draw_brush);
 						}
 					} else
-						if (simulation_controller.handleDraw(input, mouse_x, mouse_y, draw_brush))
+						if (simulation_controller.handleDraw(input, mouse_x, mouse_y, draw_brush)) // Draw with the current brush if clicking
 							house_changed = true;
 				}
 			} else if (data_mode) {
                 if(mode_cooldown < 100){
                     mode_cooldown++;
                 } else {
-                    if (gui_handler.getButtons().get("simulation").isPressed()) {
+                    if (gui_handler.getButtons().get("simulation").isPressed()) { // Go to Simulation Mode
                         data_mode = false;
                     }
                 }
             } else if (has_started) {
-				if (gui_handler.getButtons().get("run").isPressed()) {
+				if (gui_handler.getButtons().get("run").isPressed()) { // Resume the simulation
 					run_simulation = true;
 					has_started = true;
 
 					gui_handler.changeButtonText("run", "❚❚");
 				}
 
-				if (gui_handler.getButtons().get("speed").isPressed()) {
+				if (gui_handler.getButtons().get("speed").isPressed()) { // Change the simulation speed
 					simulation_controller.updateSpeed();
 
 					gui_handler.changeButtonText("speed", "x" + simulation_controller.getSpeed());
 				}
             } else {
-				if (gui_handler.getButtons().get("run").isPressed()) {
+				if (gui_handler.getButtons().get("run").isPressed()) { // When the simulation is first started, save the house data and initialize the DataEntry
 					run_simulation = true;
 					has_started = true;
+
+					display.clearObstacleDirt(init_house, dirt_data);
 
 					if (house_changed) {
 						init_house.id = data_controller.getHouseId(init_house);
@@ -318,62 +351,67 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 					gui_handler.changeButtonText("run", "❚❚");
 				}
 
-				if (gui_handler.getButtons().get("draw").isPressed()) {
+				if (gui_handler.getButtons().get("draw").isPressed()) { // Go to Draw Mode
 					draw_mode = true;
 
 					mode_cooldown = 0;
 				}
 
-				if (gui_handler.getButtons().get("data").isPressed()) {
+				if (gui_handler.getButtons().get("data").isPressed()) { // Go to Data Mode
 					data_mode = true;
 					showData();
 
 					mode_cooldown = 0;
 				}
 
-				if (gui_handler.getButtons().get("speed").isPressed()) {
+				if (gui_handler.getButtons().get("speed").isPressed()) { // Change the simulation speed
 					simulation_controller.updateSpeed();
 
 					gui_handler.changeButtonText("speed", "x" + simulation_controller.getSpeed());
 				}
 
-				if (gui_handler.getButtons().get("obstacles").isPressed()) {
+				if (gui_handler.getButtons().get("obstacles").isPressed()) { // Toggle obstacles on or off **DEBUG**
 					show_obstacles = !show_obstacles;
 				}
 
-				if (gui_handler.getButtons().get("movement").isPressed()) {
+				if (gui_handler.getButtons().get("movement").isPressed()) { // Change the movement method to simulate
 					simulation_controller.updateMovementMethod();
 
 					gui_handler.changeButtonText("movement", "Path: " + simulation_controller.getMovementMethod());
 				}
 
-				if (gui_handler.getButtons().get("house").isPressed()) {
+				if (gui_handler.getButtons().get("house").isPressed()) { // Open the house selection window
 					showHousePicker();
 				}
 			}
 		}
 	}
 
+	// Render the game
 	private void render() {
 		// INIT CODE
 		// GRAPHICS VARS
 		BufferStrategy bs = getBufferStrategy();
-		if (bs == null) {
+		if (bs == null) { // If first run, create the buffer strategy
 			createBufferStrategy(3);
 			
 			return;
 		}
+
+		// Initialize the AWT graphics
 		Graphics2D g = (Graphics2D) bs.getDrawGraphics();
 		RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.setRenderingHints(rh);
         
 		g.setColor(new Color(255, 202, 128));
-		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.fillRect(0, 0, width, height);
 		g.setFont(font);
 		// END INIT CODE
 
+		// Render the main display
 		display.render(g, simulation_controller, data_controller, show_obstacles, dirt_overlay);
 
+		// Update and Render the GUI
 		gui_handler.update(input, mouse_x, mouse_y, frame_time);
 		gui_handler.render(g, run_simulation, draw_mode, input.escape, data_mode, has_started);
 		
@@ -383,7 +421,11 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		// END CLOSING CODE
 	}
 
+	// When simulation ends, update percentages accordingly
 	private void setPercentages() {
+		average_color = MathUtil.averageColor(dirt_data);
+		average_color_percentage = (255.0 - average_color.getRed()) / 255.0 * 100.0;
+
 		switch (simulation_controller.getMovementMethod()) {
 			case SimulationController.RANDOM:
 				random_p = average_color_percentage;
@@ -400,20 +442,24 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		}
 	}
 
+	// Reset the dirt overlay and data images
 	private void reset() {
 		try {
 			dirt_overlay = ImageIO.read(new File("res/dirt.png"));
-		} catch(IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		dirt_data = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
+		dirt_data = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = dirt_data.createGraphics();
 		g.setColor(Color.WHITE);
-		g.fillRect(0, 0, WIDTH, HEIGHT);
+		g.fillRect(0, 0, width, height);
 		g.dispose();
+
+		display.clearObstacleDirt(init_house, dirt_data);
 	}
 
+	// Reset all simulation data
 	private void fullReset() {
 		house_changed = false;
 		has_started = false;
@@ -423,9 +469,15 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		snake_p = 0;
 		spiral_p = 0;
 		wall_follow_p = 0;
+
+		while(!simulation_controller.getMovementMethod().equals(simulation_controller.ALL)) {
+			simulation_controller.updateMovementMethod();
+		}
 	}
 
+	// Show the data window
 	private void showData() {
+		// Get a list of all data entries
 		int length = data_controller.getRunData().size();
 		run_data = new Object[length][6];
 		DataEntry entry;
@@ -439,8 +491,10 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 			run_data[i][5] = String.format("%.2f", entry.getWallFollow()) + "%";
 		}
 
+		// Create a table from the list of data entries
 		data_table = new JTable(run_data, COLUMN_HEADERS){public boolean isCellEditable(int rowIndex, int colIndex) {return false;}};
 
+		// Add this table to a window and display the window
 		JScrollPane container = new JScrollPane(data_table);
 		data_table.setFillsViewportHeight(true);
 
@@ -460,15 +514,20 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		data_frame.setVisible(true);
 	}
 
+	// Show the house selection window
 	private void showHousePicker() {
+		// Get a list of all houses
 		String[] houses = new String[data_controller.getHouseData().size()];
 		for (int i = 0; i < houses.length; i++){
 			houses[i] = data_controller.getHouseData().get(i);
 		}
+
+		// Create a selection drop down menu using the list of houses
 		JComboBox house_selector = new JComboBox(houses);
 		house_selector.setSelectedIndex(0);
 		house_selector.addActionListener(this);
 
+		// Add the menu to a window and display the window
 		JPanel panel = new JPanel();
 		panel.setPreferredSize(new Dimension(80, 400));
 		panel.add(house_selector);
@@ -487,6 +546,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		house_frame.setVisible(true);
 	}
 
+	// Handle clicks for the house selection window
 	public void actionPerformed(ActionEvent e) {
 		JComboBox cb = (JComboBox)e.getSource();
 		String house_id = (String)cb.getSelectedItem();
@@ -494,8 +554,20 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		// Select house
 		House house = data_controller.loadHouse(house_id);
 		if (house != null) {
-			simulation_controller.reset(new Robot(new Vector2f(WIDTH/2, HEIGHT/2), Math.PI / 2.0, 1), house);
 			init_house = house;
+
+			if (init_house.floorPlan == House.FloorPlan.A) {
+				width = WIDTH;
+				height = HEIGHT;
+			} else {
+				width = WIDTH_2;
+				height = HEIGHT_2;
+			}
+
+			simulation_controller.reset(new Robot(new Vector2f(width/2, height/2), Math.PI / 2.0, 1), house);
+			setPreferredSize(new Dimension(width, height));
+			//frame.setPreferredSize(new Dimension(width, height));
+			frame.pack();
 
 			reset();
 		}

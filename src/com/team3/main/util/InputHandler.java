@@ -15,7 +15,7 @@ public class InputHandler implements KeyListener, MouseListener, MouseWheelListe
 	public boolean up, down, left, right, space, escape, mouseLeft, mouseRight, mouseScrollUp, mouseScrollDown, mouseClicked = false;
 	public boolean focus = false;
 
-	public void update() {
+	public void update() { // Set each boolean to the keys array equivalent
 		up = keys[KeyEvent.VK_UP] || keys[KeyEvent.VK_W];
 		down = keys[KeyEvent.VK_DOWN] || keys[KeyEvent.VK_S];
 		left = keys[KeyEvent.VK_LEFT] || keys[KeyEvent.VK_A];
@@ -46,7 +46,7 @@ public class InputHandler implements KeyListener, MouseListener, MouseWheelListe
 		focus = true;
 	}
 
-	public void focusLost(FocusEvent e) {
+	public void focusLost(FocusEvent e) { // No input is accepted when window is out of focus
 		focus = false;
 		for (int i = 0; i < keys.length; i++) {
 			keys[i] = false;
@@ -63,7 +63,7 @@ public class InputHandler implements KeyListener, MouseListener, MouseWheelListe
 
 	public void mouseClicked(MouseEvent e) {
 		mouse[MouseEvent.MOUSE_CLICKED] = !mouseClicked;
-	}
+	} // Flip mouseClicked if clicked
 
 	public void mouseEntered(MouseEvent e) {
 		

@@ -44,21 +44,20 @@ public class MathUtil {
 		return new Vector2d(x, y);
 	}
 
-	public static Color averageColor(BufferedImage bi, int x0, int y0, int w, int h) {
-		int x1 = x0 + w;
-		int y1 = y0 + h;
-		long sumr = 0, sumg = 0, sumb = 0;
-		for (int x = x0; x < x1; x++) {
-			for (int y = y0; y < y1; y++) {
+	public static Color averageColor(BufferedImage bi) {
+		long sum_r = 0, sum_g = 0, sum_b = 0;
+		for (int x = 0; x < bi.getWidth(); x++) {
+			for (int y = 0; y < bi.getHeight(); y++) { // For each pixel, add the RGB values to the sums
 				Color pixel = new Color(bi.getRGB(x, y));
-				sumr += pixel.getRed();
-				sumg += pixel.getGreen();
-				sumb += pixel.getBlue();
+				sum_r += pixel.getRed();
+				sum_g += pixel.getGreen();
+				sum_b += pixel.getBlue();
 			}
 		}
-		int num = w * h;
+		int num = bi.getWidth() * bi.getHeight();
 
-		return new Color((int)sumr / num, (int)sumg / num, (int)sumb / num);
+		// The average color is the total RGB sums divided by the number of pixels sampled
+		return new Color((int)sum_r / num, (int)sum_g / num, (int)sum_b / num);
 	}
 
 }
