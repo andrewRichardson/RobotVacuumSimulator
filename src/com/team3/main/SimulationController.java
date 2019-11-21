@@ -24,7 +24,9 @@ public class SimulationController {
     private Random random;
     private int move_steps = 1, total_steps = 0;
     private boolean last_click_status = false, first_click = true, reset_complete = false;
+    private double snake_move;
     private double spiral_move;
+    private boolean snake_turn_switch = false;
 
     private Color vacuum_color = new Color(0.1f, 0.1f, 0.1f);
     private Color whisker_color = new Color(0.4f, 0.4f, 0.4f);
@@ -130,19 +132,53 @@ public class SimulationController {
 
         return false; 
     }
-
+    // snake is unfinished currently
     private boolean snake(boolean collide_obstacles) {
-        // when Vacuum bumps into something, rotate 90 degrees.
-        Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());; // unfinished
+    	
+        // when Vacuum bumps into something, rotate 90 degrees, and move either a set time period or distance(ideally overlapping where it just passed over a little bit), then rotate 90 degrees again. 
+        // generally, it SHOULD move move mainly up and down, and shift to the left and right some to not move over the exact same sections.
+    	Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
         robot.addPosition(delta_position);
-
+        if (snake_move < 24 && snake_move >= 0) {
+        	snake_move++;
+        } 
+        
+        else {
+        	//use turn_switch
+        	if(snake_turn_switch == false) {
+        		robot.addRotation(Math.PI/2);
+        		snake_move = -1;
+        		snake_turn_switch = true;
+        	}
+        	
+        	else {
+        		robot.addRotation(-Math.PI/2);
+        		snake_move = -1;
+        		snake_turn_switch = false;
+        	}
+        }
+        // currently rotates whenever it bumps into a leg, even if it passes it. Why?
         if (CollisionController.collisionDetection(current_house,  robot,  collide_obstacles)) {
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+            //use turn switch
+            
             double direction = Math.PI/2;
-            robot.addRotation(direction);
+            
+            if(snake_turn_switch == false) {
+        		robot.addRotation(direction);
+        		snake_move = 0;
+        		snake_turn_switch = true;
+        	}
+        	
+        	else {
+        		robot.addRotation(-direction);
+        		snake_move = 0;
+        		snake_turn_switch = false;
+        	}
 
             return true;
         }
+        
         return false;
     }
 
