@@ -22,7 +22,7 @@ public class SimulationController {
     private Robot robot;
     private String movement_method = ALL;
     private Random random;
-    private int move_steps = 1, total_steps = 0;
+    private int move_steps = 1, total_steps = 0, xt=0;
     private boolean last_click_status = false, first_click = true, reset_complete = false;
     private double spiral_move, snake_move;
     private boolean snake_turn_switch = false;
@@ -195,7 +195,24 @@ public class SimulationController {
 
 
     private boolean wallFollow(boolean collide_obstacles) {
+    	Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
+        robot.addPosition(delta_position);
+        
+        
+        if (xt%20 == 19) {
+        	robot.addPosition(new Vector2f(-delta_position.x*2, -delta_position.y*2));
+        	robot.addRotation(-Math.PI/2);
+        }
+        xt++;
+        
+        if(CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
+        	robot.addPosition(new Vector2f(-delta_position.x*2, -delta_position.y*2));
+        	robot.addRotation(Math.PI/2);
+        	return true;
+        }
+        
         return false;
+
     }
 
     private void draw_trail(Graphics2D g_trail) { // Clear dirt overlay in location of robot vacuum and whiskers
