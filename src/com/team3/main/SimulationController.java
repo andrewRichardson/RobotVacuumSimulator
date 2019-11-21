@@ -139,11 +139,8 @@ public class SimulationController {
     }
     // snake is unfinished currently
     private boolean snake(boolean collide_obstacles) {
-<<<<<<< HEAD
-    	
-        // when Vacuum bumps into something, rotate 90 degrees, and move either a set time period or distance(ideally overlapping where it just passed over a little bit), then rotate 90 degrees again. 
-        // generally, it SHOULD move move mainly up and down, and shift to the left and right some to not move over the exact same sections.
-    	Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
+    	// Go straight robot.getSpeed() units
+        Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
         robot.addPosition(delta_position);
         if (snake_move < 24 && snake_move >= 0) {
         	snake_move++;
@@ -164,21 +161,9 @@ public class SimulationController {
         	}
         }
         // currently rotates whenever it bumps into a leg, even if it passes it. Why?
-        if (CollisionController.collisionDetection(current_house,  robot,  collide_obstacles)) {
-            robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
-            //use turn switch
-            
-=======
-        // Go straight robot.getSpeed() units
-        Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
-        robot.addPosition(delta_position);
-
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) { // If the Robot collided
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
-
-            //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
-            //  subtract PI/4 degrees so that the number is between -PI/4 and PI/4
->>>>>>> 48afc1edd2a8a4f2ebcf17949251066f686695be
+            //use turn switch
             double direction = Math.PI/2;
             
             if(snake_turn_switch == false) {
@@ -198,6 +183,7 @@ public class SimulationController {
         
         return false;
     }
+            
 
     private boolean spiral(boolean collide_obstacles) {
         // Go straight robot.getSpeed() units
