@@ -470,9 +470,13 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		spiral_p = 0;
 		wall_follow_p = 0;
 
+		show_obstacles = true;
+
 		while(!simulation_controller.getMovementMethod().equals(simulation_controller.ALL)) {
 			simulation_controller.updateMovementMethod();
 		}
+
+		gui_handler.changeButtonText("movement", "Path: All");
 	}
 
 	// Show the data window

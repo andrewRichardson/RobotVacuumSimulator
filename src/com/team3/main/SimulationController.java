@@ -35,6 +35,7 @@ public class SimulationController {
         current_house = init_house;
         this.robot = robot;
         spiral_move = 0;
+        snake_move = -1;
     }
 
     public boolean handleDraw(InputHandler inputHandler, int mouse_x, int mouse_y, String draw_brush) {
@@ -141,41 +142,23 @@ public class SimulationController {
     	// Go straight robot.getSpeed() units
         Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
         robot.addPosition(delta_position);
+
         if (snake_move < 24 && snake_move >= 0) {
         	snake_move++;
-        } 
-        
-        else {
-        	//use turn_switch
-        	if(snake_turn_switch == false) {
-        		robot.addRotation(Math.PI/2);
-        		snake_move = -1;
-        		snake_turn_switch = true;
-        	}
-        	
-        	else {
-        		robot.addRotation(-Math.PI/2);
-        		snake_move = -1;
-        		snake_turn_switch = false;
-        	}
+        } else {
+            if (snake_move == 24) {
+                snake_move = -1;
+                robot.addRotation(snake_turn_switch ? Math.PI/2 : -Math.PI/2);
+            }
         }
         // currently rotates whenever it bumps into a leg, even if it passes it. Why?
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) { // If the Robot collided
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
             //use turn switch
-            double direction = Math.PI/2;
-            
-            if(snake_turn_switch == false) {
-        		robot.addRotation(direction);
-        		snake_move = 0;
-        		snake_turn_switch = true;
-        	}
-        	
-        	else {
-        		robot.addRotation(-direction);
-        		snake_move = 0;
-        		snake_turn_switch = false;
-        	}
+
+            snake_turn_switch = !snake_turn_switch;
+            robot.addRotation(snake_turn_switch ? Math.PI/2 : -Math.PI/2);
+            snake_move = 0;
 
             return true;
         }
@@ -275,6 +258,7 @@ public class SimulationController {
         spiral_move = 0;
         robot = new_robot;
         reset_complete = false;
+        snake_move = -1;
     }
 
     public void reset(Robot new_robot, House new_house) { // Reset the simulation with a new house
