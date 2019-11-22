@@ -23,7 +23,7 @@ public class SimulationController {
     private String movement_method = ALL;
     private Random random;
     private int move_steps = 1, total_steps = 0, xt=0;
-    private boolean last_click_status = false, first_click = true, reset_complete = false;
+    private boolean last_click_status = false, first_click = true, reset_complete = false, first_coll = false;
     private double spiral_move, snake_move;
     private boolean snake_turn_switch = false;
 
@@ -153,10 +153,10 @@ public class SimulationController {
         }
         // currently rotates whenever it bumps into a leg, even if it passes it. Why?
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) { // If the Robot collided
-            robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+            robot.addPosition(new Vector2f(-delta_position.x*3, -delta_position.y*3));
             //use turn switch
-
-            snake_turn_switch = !snake_turn_switch;
+            snake_turn_switch = (int)(System.currentTimeMillis())%4 == 0;
+            //snake_turn_switch = !snake_turn_switch;
             robot.addRotation(snake_turn_switch ? Math.PI/2 : -Math.PI/2);
             snake_move = 0;
 
@@ -199,7 +199,7 @@ public class SimulationController {
         robot.addPosition(delta_position);
         
         
-        if (xt%20 == 19) {
+        if (xt%20 == 19 && first_coll) {
         	robot.addPosition(new Vector2f(-delta_position.x*2, -delta_position.y*2));
         	robot.addRotation(-Math.PI/2);
         }
@@ -208,6 +208,7 @@ public class SimulationController {
         if(CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
         	robot.addPosition(new Vector2f(-delta_position.x*2, -delta_position.y*2));
         	robot.addRotation(Math.PI/2);
+        	first_coll = true;
         	return true;
         }
         
