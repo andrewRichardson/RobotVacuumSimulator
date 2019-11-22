@@ -22,10 +22,9 @@ public class SimulationController {
     private Robot robot;
     private String movement_method = ALL;
     private Random random;
-    private int move_steps = 1, total_steps = 0, xt=0;
-    private boolean last_click_status = false, first_click = true, reset_complete = false, first_coll = false;
+    private int move_steps = 1, total_steps = 0, xt = 0;
+    private boolean last_click_status = false, first_click = true, reset_complete = false, first_coll = false, snake_turn_switch = false;
     private double spiral_move, snake_move;
-    private boolean snake_turn_switch = false;
 
     private Color vacuum_color = new Color(0.1f, 0.1f, 0.1f);
     private Color whisker_color = new Color(0.4f, 0.4f, 0.4f);
@@ -277,6 +276,9 @@ public class SimulationController {
         robot = new_robot;
         reset_complete = false;
         snake_move = -1;
+        snake_turn_switch = false;
+        first_coll = false;
+        xt = 0;
     }
 
     public void reset(Robot new_robot, House new_house) { // Reset the simulation with a new house
