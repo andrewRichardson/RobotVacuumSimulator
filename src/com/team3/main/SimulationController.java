@@ -198,18 +198,35 @@ public class SimulationController {
     	Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
         robot.addPosition(delta_position);
         
-        
-        if (xt%20 == 19 && first_coll) {
-        	robot.addPosition(new Vector2f(-delta_position.x*2, -delta_position.y*2));
-        	robot.addRotation(-Math.PI/2);
+        if (total_steps > 25000 && total_steps < 27500   ||  total_steps > 50000 ) {
+
+            if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) { // If the Robot collided
+                // Return to the previous position
+                robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
+
+                //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
+                //  subtract PI/4 degrees so that the number is between -PI/4 and PI/4
+                double direction = ( random.nextDouble() * (Math.PI / 2) ) - (Math.PI / 4);
+
+                robot.addRotation(direction);
+
+                return true;
+            }
         }
-        xt++;
         
-        if(CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
+        else {
+           if (xt%20 == 19 && first_coll) {
+           	robot.addPosition(new Vector2f(-delta_position.x*2, -delta_position.y*2));
+           	robot.addRotation(-Math.PI/2);
+           }
+           xt++;
+        
+           if(CollisionController.collisionDetection(current_house, robot, collide_obstacles)) {
         	robot.addPosition(new Vector2f(-delta_position.x*2, -delta_position.y*2));
         	robot.addRotation(Math.PI/2);
         	first_coll = true;
         	return true;
+           }
         }
         
         return false;
