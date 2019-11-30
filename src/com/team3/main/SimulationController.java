@@ -217,6 +217,9 @@ public class SimulationController {
            if (xt%20 == 19 && first_coll) {
            	robot.addPosition(new Vector2f(-delta_position.x*2, -delta_position.y*2));
            	robot.addRotation(-Math.PI/2);
+           	if (xt%300 == 299) {
+           		first_coll = false;
+           	}
            }
            xt++;
         
