@@ -24,7 +24,7 @@ public class SimulationController {
     private Random random;
     private int move_steps = 1, total_steps = 0, xt = 0;
     private boolean last_click_status = false, first_click = true, reset_complete = false, first_coll = false, snake_turn_switch = false;
-    private double spiral_move, snake_move;
+    private double spiral_move, snake_move, snake_turn;
 
     private Color vacuum_color = new Color(0.1f, 0.1f, 0.1f);
     private Color whisker_color = new Color(0.4f, 0.4f, 0.4f);
@@ -35,6 +35,7 @@ public class SimulationController {
         this.robot = robot;
         spiral_move = 0;
         snake_move = -1;
+        snake_turn = -1;
     }
 
     public boolean handleDraw(InputHandler inputHandler, int mouse_x, int mouse_y, String draw_brush) {
@@ -150,6 +151,15 @@ public class SimulationController {
                 robot.addRotation(snake_turn_switch ? Math.PI/2 : -Math.PI/2);
             }
         }
+        
+        if (snake_turn < 200 && snake_turn >= 0) {
+        	snake_turn++;
+        } else {
+            if (snake_turn == 200) {
+                snake_turn = -1;
+                robot.addRotation(snake_turn_switch ? Math.PI/2 : -Math.PI/2);
+            }
+        }
         // currently rotates whenever it bumps into a leg, even if it passes it. Why?
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) { // If the Robot collided
             robot.addPosition(new Vector2f(-delta_position.x*3, -delta_position.y*3));
@@ -158,7 +168,8 @@ public class SimulationController {
             //snake_turn_switch = !snake_turn_switch;
             robot.addRotation(snake_turn_switch ? Math.PI/2 : -Math.PI/2);
             snake_move = 0;
-
+            snake_turn++;
+            
             return true;
         }
         
@@ -296,6 +307,7 @@ public class SimulationController {
         robot = new_robot;
         reset_complete = false;
         snake_move = -1;
+        snake_turn = -1;
         snake_turn_switch = false;
         first_coll = false;
         xt = 0;
