@@ -16,7 +16,7 @@ import com.team3.main.entities.Robot;
 
 public class Display {
 
-    private BufferedImage planks_image, chest_image, table_image, table_legs_image, vacuum_image, data_image, floor_a, floor_b, door_a, door_b;
+    private BufferedImage planks_image, chest_image, table_image, table_legs_image, vacuum_image, floor_a, floor_b, door_a, door_b;
 
     // Try to get all image files
     public Display() {
@@ -27,7 +27,6 @@ public class Display {
             table_image = ImageIO.read(new File("res/table.png"));
             table_legs_image = ImageIO.read(new File("res/table_legs.png"));
             vacuum_image = ImageIO.read(new File("res/vacuum.png"));
-            data_image = ImageIO.read(new File("res/data_collection.png"));
             floor_a = ImageIO.read(new File("res/floor_a.png"));
             floor_b = ImageIO.read(new File("res/floor_b.png"));
             door_a = ImageIO.read(new File("res/door_a.png"));

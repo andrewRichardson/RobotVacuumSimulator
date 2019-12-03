@@ -47,7 +47,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 	// END UTIL VARS
 
 	private BufferedImage dirt_overlay, dirt_data;
-	private Font font;
+	private Font font, table_font, house_font;
 	private Robot robot;
 	private House init_house;
 	private GUIHandler gui_handler;
@@ -86,6 +86,8 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 
 		// GRAPHICS VARS
 		font = new Font("Arial", Font.BOLD, 12);
+		table_font = new Font("Arial", Font.PLAIN, 13);
+		house_font = new Font("Arial", Font.BOLD, 14);
 
 		// Get dirt_overlay image from file
 		try {
@@ -497,6 +499,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 
 		// Create a table from the list of data entries
 		data_table = new JTable(run_data, COLUMN_HEADERS){public boolean isCellEditable(int rowIndex, int colIndex) {return false;}};
+		data_table.setFont(table_font);
 
 		// Add this table to a window and display the window
 		JScrollPane container = new JScrollPane(data_table);
@@ -530,6 +533,7 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		JComboBox house_selector = new JComboBox(houses);
 		house_selector.setSelectedIndex(0);
 		house_selector.addActionListener(this);
+		house_selector.setFont(house_font);
 
 		// Add the menu to a window and display the window
 		JPanel panel = new JPanel();
