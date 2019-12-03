@@ -134,11 +134,11 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 		gui_handler.addButton(new Button(25, 25, 80, 30, "▶"), "run");
 		gui_handler.addButton(new Button(115, 25, 80, 30, "x1"), "speed");
 		gui_handler.addButton(new Button(115, 25, 80, 30, "⏹"), "stop");
-		gui_handler.addButton(new Button(205, 25, 150, 30, "Toggle Obstacles"), "obstacles");
-		gui_handler.addButton(new Button(365, 25, 150, 30, "Path: " + simulation_controller.getMovementMethod()), "movement");
-		gui_handler.addButton(new Button(525, 25, 120, 30, "Draw Mode"), "draw");
-        gui_handler.addButton(new Button(655, 25, 120, 30, "Data Mode"), "data");
-		gui_handler.addButton(new Button(785, 25, 120, 30, "Select House"), "house");
+		//gui_handler.addButton(new Button(205, 25, 150, 30, "Toggle Obstacles"), "obstacles");
+		gui_handler.addButton(new Button(205, 25, 150, 30, "Path: " + simulation_controller.getMovementMethod()), "movement");
+		gui_handler.addButton(new Button(365, 25, 120, 30, "Draw Mode"), "draw");
+        gui_handler.addButton(new Button(495, 25, 120, 30, "Data Mode"), "data");
+		gui_handler.addButton(new Button(625, 25, 120, 30, "Select House"), "house");
 
 		// Add buttons for Draw Mode
 		gui_handler.addButton(new Button(25, 25, 80, 30, "Hold ESC"), "tools");
@@ -370,9 +370,9 @@ public class Main extends Canvas implements Runnable, MouseMotionListener, Actio
 					gui_handler.changeButtonText("speed", "x" + simulation_controller.getSpeed());
 				}
 
-				if (gui_handler.getButtons().get("obstacles").isPressed()) { // Toggle obstacles on or off **DEBUG**
-					show_obstacles = !show_obstacles;
-				}
+				//if (gui_handler.getButtons().get("obstacles").isPressed()) { // Toggle obstacles on or off **DEBUG**
+				//	show_obstacles = !show_obstacles;
+				//}
 
 				if (gui_handler.getButtons().get("movement").isPressed()) { // Change the movement method to simulate
 					simulation_controller.updateMovementMethod();
