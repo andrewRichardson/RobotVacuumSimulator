@@ -1,4 +1,4 @@
-# ROBOT VACUUM SIMULATOR
+# Robo-Vacuum Simulator
 
 ### Simulates a robot vacuum (iRobot etc.) cleaning a custom house
 
