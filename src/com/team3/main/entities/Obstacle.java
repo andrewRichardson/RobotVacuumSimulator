@@ -6,7 +6,7 @@ import java.util.Arrays;
 public abstract class Obstacle {
 	
 	public static final int LEG_SIZE = 6, GAP_SIZE = 38; // Standard leg size and gap size for tables
-	public Rectangle[] collision_bounds; // Collidable area(s)
+	public Rectangle[] collision_bounds; // Collide-able area(s)
 	public final boolean is_table; // If the object can be permeated
 	
 	public Obstacle(int x, int y, boolean is_table) {

@@ -4,47 +4,25 @@ import java.util.HashMap;
 
 public class House {
 
-	public static enum FloorPlan {
-		A, B
-	}
-
 	public String id; // Unique identifier
-	public final FloorPlan floorPlan; // Floor plan A or B
+	public final String floorPlan; // Floor plan A or B
 	public final int width, height; // Size of room
 	public static final int GRID_SIZE = 60; // Size of each square in the obstacle grid
 	public HashMap<Integer, Obstacle> obstacles; // Array of obstacles for the House
 
 	private Obstacle[] walls; // Array of walls (boundary walls and inner walls)
-	
-	public House(int width, int height, HashMap<Integer, Obstacle> obstacles, FloorPlan floorPlan) {
-		this.width = width;
-		this.height = height;
-		this.obstacles = obstacles;
-		this.floorPlan = floorPlan;
-		
-		init_bounds();
-	}
 
-	public House(int width, int height, FloorPlan floorPlan) {
+	public House(int width, int height, String floorPlan) {
 		this.width = width;
 		this.height = height;
-		obstacles = new HashMap<Integer, Obstacle>();
+		obstacles = new HashMap<>();
 		this.floorPlan = floorPlan;
 
-		init_bounds();
-	}
-
-	public House(int width, int height) {
-		this.width = width;
-		this.height = height;
-		obstacles = new HashMap<Integer, Obstacle>();
-		floorPlan = FloorPlan.A;
-		
 		init_bounds();
 	}
 
 	private void init_bounds() {
-		if (floorPlan == FloorPlan.A) { // Add floor plan A walls
+		if (floorPlan.equals("A")) { // Add floor plan A walls
 			walls = new Obstacle[]{
 					new Barrier(-(Obstacle.GAP_SIZE + Obstacle.LEG_SIZE * 2), 0, (Obstacle.GAP_SIZE + Obstacle.LEG_SIZE * 2), height),
 					new Barrier(width, 0, (Obstacle.GAP_SIZE + Obstacle.LEG_SIZE), height),

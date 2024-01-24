@@ -9,7 +9,7 @@ import java.awt.*;
 class CollisionController {
 
     static boolean collisionDetection(House floor_plan, Robot robot, boolean collide_obstacles) {
-        // If obstacle collsion is enabled, check it
+        // If obstacle collision is enabled, check it
         if (collide_obstacles) {
             for (Obstacle obstacle : floor_plan.obstacles.values()) { // Loop through obstacles
                 for (Rectangle rectangle : obstacle.collision_bounds) {

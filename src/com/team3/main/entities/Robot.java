@@ -11,10 +11,11 @@ public class Robot {
 	private Vector2f position;
 	private double rotation;
 	private final double base_speed;
-	private Ellipse2D.Double bounds;
+	private final Ellipse2D.Double bounds;
 
-	private Vacuum vacuum;
-	private Whisker left_whisker, right_whisker;
+	private final Vacuum vacuum;
+	private final Whisker left_whisker;
+    private final Whisker right_whisker;
 
 	private final Vector2f vacuum_offset = new Vector2f(6.5, 4); // Where the vacuum is relative to the robot
 	private final Vector2f left_whisker_offset = new Vector2f(-0.5, 2); // Where the left whisker is relative to the robot

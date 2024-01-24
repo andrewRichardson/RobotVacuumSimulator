@@ -16,20 +16,18 @@ import com.team3.main.util.InputHandler;
 
 public class GUIHandler {
 	
-	private HashMap<String, Button> button_list;
-	private Color button_color = Color.GRAY, font_color = Color.WHITE, outline_color = Color.DARK_GRAY, pressed_color = Color.LIGHT_GRAY;
+	private final HashMap<String, Button> button_list;
+	private final Color button_color;
+    private final Color font_color;
+    private final Color outline_color;
+    private final Color pressed_color;
 	private final int stroke = 1;
 	private boolean last_click_status = false;
 	private final float alpha;
-	private BasicStroke stroke_style = new BasicStroke(stroke, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND);
-	
-	public GUIHandler() {
-		button_list = new HashMap<String, Button>();
-		alpha = 0.5f;
-	}
+	private final BasicStroke stroke_style = new BasicStroke(stroke, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_ROUND);
 	
 	public GUIHandler(Color button_color, Color pressed_color, Color outline_color, Color font_color, float alpha) {
-		button_list = new HashMap<String, Button>();
+		button_list = new HashMap<>();
 		
 		this.button_color = button_color;
 		this.font_color = font_color;
@@ -107,7 +105,7 @@ public class GUIHandler {
 				// Remove blacklisted buttons that should only display in other modes -----------------
 
 				// Add the buttons to a temporary array list
-				List<Button> button_temp_list = new ArrayList<Button>();
+				List<Button> button_temp_list = new ArrayList<>();
 				button_temp_list.add(button_list.get("brush"));
 				button_temp_list.add(button_list.get("simulation"));
 				button_temp_list.add(button_list.get("tools"));
@@ -123,15 +121,7 @@ public class GUIHandler {
 				for (Button button : button_list.values()) {
 					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha));
 
-					g.setColor(button.pressed ? pressed_color : button_color);
-					g.fill(button.getBounds());
-
-					g.setColor(outline_color);
-					g.draw(button.getBounds());
-
-					g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-					g.setColor(font_color);
-					drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
+					displayButtons(g, button);
 				}
 
 				// Re-add the blacklisted buttons from the temporary array
@@ -145,22 +135,25 @@ public class GUIHandler {
 		}
 	}
 
+	private void displayButtons(Graphics2D g, Button button) {
+		g.setColor(button.pressed ? pressed_color : button_color);
+		g.fill(button.getBounds());
+
+		g.setColor(outline_color);
+		g.draw(button.getBounds());
+
+		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+		g.setColor(font_color);
+		drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
+	}
+
 	private void drawButton(Graphics2D g, String name, float alpha_mul) {
 		// Get the button instance and draw with alpha transparency
 		Button button = button_list.get(name);
 		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha * alpha_mul));
 
 		// Set color according to button state
-		g.setColor(button.pressed ? pressed_color : button_color);
-		g.fill(button.getBounds()); // Fill background
-
-		g.setColor(outline_color);
-		g.draw(button.getBounds()); // Fill outline
-
-		// Draw text with no transparency
-		g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
-		g.setColor(font_color);
-		drawCenteredString(g, button.text, button.getBounds().getBounds(), new Font("Helvetica", Font.BOLD, 16));
+		displayButtons(g, button);
 	}
 	
 	private void drawCenteredString(Graphics g, String text, Rectangle rect, Font font) {

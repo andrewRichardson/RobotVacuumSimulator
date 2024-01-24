@@ -3,7 +3,8 @@ package com.team3.main.math;
 public class Vector2f {
 
 	public double x, y;
-	
+
+	@SuppressWarnings("unused")
 	public Vector2f() {
 		x = 0;
 		y = 0;
@@ -13,12 +14,14 @@ public class Vector2f {
 		this.x = x;
 		this.y = y;
 	}
-	
+
+	@SuppressWarnings("unused")
 	public void multiply(double factor) {
 		x *= factor;
 		y *= factor;
 	}
-	
+
+	@SuppressWarnings("unused")
 	public double dot(Vector2f other) {
 		return (other.x * x) + (other.y * y);
 	}

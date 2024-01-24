@@ -21,13 +21,13 @@ public class SimulationController {
     private House current_house;
     private Robot robot;
     private String movement_method = ALL;
-    private Random random;
+    private final Random random;
     private int move_steps = 1, total_steps = 0, xt = 0;
     private boolean last_click_status = false, first_click = true, reset_complete = false, first_coll = false, snake_turn_switch = false;
     private double spiral_move, snake_move, snake_turn;
 
-    private Color vacuum_color = new Color(0.1f, 0.1f, 0.1f);
-    private Color whisker_color = new Color(0.4f, 0.4f, 0.4f);
+    private final Color vacuum_color = new Color(0.1f, 0.1f, 0.1f);
+    private final Color whisker_color = new Color(0.4f, 0.4f, 0.4f);
 
     public SimulationController(House init_house, Robot robot) {
         random = new Random();
@@ -44,7 +44,7 @@ public class SimulationController {
         int grid_x = (int)Math.floor((double)mouse_x / (double) House.GRID_SIZE);
         int grid_y = (int)Math.floor((double)mouse_y / (double) House.GRID_SIZE);
 
-        int index = (current_house.floorPlan == House.FloorPlan.A ? 16 : 20) * grid_y + grid_x; // 2D array index to 1D array index
+        int index = (current_house.floorPlan.equals("A") ? 16 : 20) * grid_y + grid_x; // 2D array index to 1D array index
         Vector2d position = new Vector2d(grid_x * House.GRID_SIZE + 9, grid_y * House.GRID_SIZE + 9); // Translate position to obstacle position
 
         if (inputHandler.mouseClicked != last_click_status) { // If the mouse was clicked, draw
@@ -56,7 +56,7 @@ public class SimulationController {
                 last_click_status = inputHandler.mouseClicked;
 
                 System.out.println(current_house.obstacles.remove(index)); // Remove the obstacle
-                switch (draw_brush) { // Add back a table or chest according to brush, if erase, do nothing
+                switch (draw_brush) { // Add back a table or chest according to brush, if eraser, do nothing
                     case TABLE:
                         current_house.obstacles.put(index, new Table(position.x, position.y));
                         break;
@@ -66,7 +66,7 @@ public class SimulationController {
                 }
             }
         }
-        return drawing; // Whether or not anything was actually changed
+        return drawing; // Whether anything was actually changed
     }
 
     public void update(BufferedImage dirt_image, boolean collide_obstacles, BufferedImage dirt_data) {
@@ -84,25 +84,16 @@ public class SimulationController {
                     i = move_steps;
                 }
 
-                boolean did_collide = false;
-                switch (movement_method) { // Use appropriate movement method
-                    case "Random":
-                        did_collide = random(collide_obstacles);
-                        break;
-                    case "Snake":
-                        did_collide = snake(collide_obstacles);
-                        break;
-                    case "Spiral":
-                        did_collide = spiral(collide_obstacles);
-                        break;
-                    case "Wall Follow":
-                        did_collide = wallFollow(collide_obstacles);
-                        break;
-                    default:
+                boolean did_collide = switch (movement_method) { // Use appropriate movement method
+                    case "Random" -> random(collide_obstacles);
+                    case "Snake" -> snake(collide_obstacles);
+                    case "Spiral" -> spiral(collide_obstacles);
+                    case "Wall Follow" -> wallFollow(collide_obstacles);
+                    default -> {
                         System.out.println("Error, bad movement method specified.");
-                        did_collide = random(collide_obstacles);
-                        break;
-                }
+                        yield random(collide_obstacles);
+                    }
+                };
 
                 if (!did_collide) { // If the obstacle did not collide, collect dirt and update dirt overlay
                     draw_trail(g_trail);
@@ -122,6 +113,10 @@ public class SimulationController {
         Vector2f delta_position = new Vector2f(Math.cos(robot.getRotation()) * robot.getSpeed(), Math.sin(robot.getRotation()) * robot.getSpeed());
         robot.addPosition(delta_position);
 
+        return detectCollision(collide_obstacles, delta_position);
+    }
+
+    private boolean detectCollision(boolean collide_obstacles, Vector2f delta_position) {
         if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) { // If the Robot collided
             // Return to the previous position
             robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
@@ -134,8 +129,7 @@ public class SimulationController {
 
             return true;
         }
-
-        return false; 
+        return false;
     }
 
     private boolean snake(boolean collide_obstacles) {
@@ -210,18 +204,7 @@ public class SimulationController {
         
         if (total_steps > 25000 && total_steps < 27500   ||  total_steps > 50000 ) {
 
-            if (CollisionController.collisionDetection(current_house, robot, collide_obstacles)) { // If the Robot collided
-                // Return to the previous position
-                robot.addPosition(new Vector2f(-delta_position.x, -delta_position.y));
-
-                //  Generate random number between 0.0 and 1.0, scale to PI/2 degrees,
-                //  subtract PI/4 degrees so that the number is between -PI/4 and PI/4
-                double direction = ( random.nextDouble() * (Math.PI / 2) ) - (Math.PI / 4);
-
-                robot.addRotation(direction);
-
-                return true;
-            }
+            return detectCollision(collide_obstacles, delta_position);
         }
         
         else {

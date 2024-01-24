@@ -10,7 +10,7 @@ import java.awt.event.MouseWheelListener;
 
 public class InputHandler implements KeyListener, MouseListener, MouseWheelListener {
 	
-	private boolean[] keys = new boolean[65536];
+	private final boolean[] keys = new boolean[65536];
 	public boolean[] mouse = new boolean[508];
 	public boolean up, down, left, right, space, escape, mouseLeft, mouseRight, mouseScrollUp, mouseScrollDown, mouseClicked = false;
 	public boolean focus = false;

@@ -2,9 +2,12 @@ package com.team3.main.entities;
 
 public class DataEntry {
 
-    private String run_id; // Unique run identifier
-    private String house_id; // Id of the house used
-    private double random, snake, spiral, wall_follow; // Percentages for each movement method
+    private final String run_id; // Unique run identifier
+    private final String house_id; // ID of the house used
+    private final double random;
+    private final double snake;
+    private final double spiral;
+    private final double wall_follow; // Percentages for each movement method
 
     public DataEntry(String run_id, String house_id, double random, double snake, double spiral, double wall_follow) {
         this.run_id = run_id;

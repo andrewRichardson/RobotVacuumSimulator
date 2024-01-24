@@ -5,8 +5,9 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
@@ -22,22 +23,22 @@ public class Display {
     public Display() {
         // Images
         try {
-            planks_image = ImageIO.read(new File("res/wood_planks.png"));
-            chest_image = ImageIO.read(new File("res/chest.png"));
-            table_image = ImageIO.read(new File("res/table.png"));
-            table_legs_image = ImageIO.read(new File("res/table_legs.png"));
-            vacuum_image = ImageIO.read(new File("res/vacuum.png"));
-            floor_a = ImageIO.read(new File("res/floor_a.png"));
-            floor_b = ImageIO.read(new File("res/floor_b.png"));
-            door_a = ImageIO.read(new File("res/door_a.png"));
-            door_b = ImageIO.read(new File("res/door_b.png"));
+            planks_image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/res/wood_planks.png")));
+            chest_image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/res/chest.png")));
+            table_image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/res/table.png")));
+            table_legs_image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/res/table_legs.png")));
+            vacuum_image = ImageIO.read(Objects.requireNonNull(getClass().getResource("/res/vacuum.png")));
+            floor_a = ImageIO.read(Objects.requireNonNull(getClass().getResource("/res/floor_a.png")));
+            floor_b = ImageIO.read(Objects.requireNonNull(getClass().getResource("/res/floor_b.png")));
+            door_a = ImageIO.read(Objects.requireNonNull(getClass().getResource("/res/door_a.png")));
+            door_b = ImageIO.read(Objects.requireNonNull(getClass().getResource("/res/door_b.png")));
         } catch(IOException e) {
-            e.printStackTrace();
+            System.out.println("Error:" + Arrays.toString(e.getStackTrace()));
         }
     }
 
     // Render main display
-    public void render(Graphics2D g, SimulationController simulationController, DataController dataController, boolean show_obstacles, BufferedImage dirt_overlay) {
+    public void render(Graphics2D g, SimulationController simulationController, boolean show_obstacles, BufferedImage dirt_overlay) {
         // Render background
         g.drawImage(planks_image, 0, 0, null);
 
@@ -49,7 +50,7 @@ public class Display {
             renderObstacles(g, simulationController.getFloorPlan());
 
             // Render walls and doors according to floor plan
-            if (simulationController.getFloorPlan().floorPlan == House.FloorPlan.A) {
+            if (simulationController.getFloorPlan().floorPlan.equals("A")) {
                 g.drawImage(floor_a, 0, 0, null);
                 g.drawImage(door_a, 0, 0, null);
             } else {
@@ -84,28 +85,6 @@ public class Display {
         }
     }
 
-    // Render obstacles as red rectangles
-    private void renderObstacleBounds(Graphics2D g, House house) {
-        g.setColor(Color.RED);
-        for (Obstacle obstacle : house.obstacles.values()) {
-            if (obstacle.is_table) {
-                g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
-                g.fillRect(obstacle.collision_bounds[1].x, obstacle.collision_bounds[1].y, obstacle.collision_bounds[1].width, obstacle.collision_bounds[1].height);
-                g.fillRect(obstacle.collision_bounds[2].x, obstacle.collision_bounds[2].y, obstacle.collision_bounds[2].width, obstacle.collision_bounds[2].height);
-                g.fillRect(obstacle.collision_bounds[3].x, obstacle.collision_bounds[3].y, obstacle.collision_bounds[3].width, obstacle.collision_bounds[3].height);
-            } else {
-                g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
-            }
-        }
-    }
-
-    private void renderWallsBounds(Graphics2D g, House house) {
-        g.setColor(Color.RED);
-        for (Obstacle obstacle : house.getWalls()) {
-            g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
-        }
-    }
-
     // Clear the dirt under obstacles
     public void clearObstacleDirt(House house, BufferedImage dirt_image) {
         RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -114,6 +93,12 @@ public class Display {
         g.setComposite(AlphaComposite.Src);
         g.setColor(new Color(0, 0, 0, 0));
 
+        renderObstacle(house, g);
+
+        g.dispose();
+    }
+
+    private void renderObstacle(House house, Graphics2D g) {
         for (Obstacle obstacle : house.obstacles.values()) {
             if (obstacle.is_table) {
                 g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
@@ -124,7 +109,5 @@ public class Display {
                 g.fillRect(obstacle.collision_bounds[0].x, obstacle.collision_bounds[0].y, obstacle.collision_bounds[0].width, obstacle.collision_bounds[0].height);
             }
         }
-
-        g.dispose();
     }
 }

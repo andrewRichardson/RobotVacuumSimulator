@@ -4,7 +4,7 @@ import java.awt.geom.RoundRectangle2D;
 
 public class Button {
 
-	private RoundRectangle2D.Double bounds;
+	private final RoundRectangle2D.Double bounds;
 	public String text;
 	public boolean pressed = false;
 	private boolean callback_complete = true;

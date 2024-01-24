@@ -10,6 +10,7 @@ local.properties
 .loadpath
 .recommenders
 out/
+.DS_Store
 
 .json
 
